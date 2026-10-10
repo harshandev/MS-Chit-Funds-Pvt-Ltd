@@ -1,26 +1,69 @@
 @import "tailwindcss";
 
+/* ── Design tokens: the single source of truth for brand colour ── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --emerald: #064e3b;
+  --emerald-700: #0a6350;
+  --emerald-50: #e8f1ed;
+  --gold: #d4af37;
+  --gold-antique: #c9a227;
+  --ivory: #f8f6ef;
+  --navy: #0b1f3a;
+  --white: #ffffff;
+  --ink: #18251f;
+  --ink-muted: #68736c;
+  --line: #e5e4da;
+  --success: #237a52;
+  --warning: #a96613;
+  --danger: #b42318;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-1: 0 1px 2px rgb(24 37 31 / 0.06);
+  --shadow-2: 0 4px 16px rgb(24 37 31 / 0.08);
+  --shadow-3: 0 12px 32px rgb(24 37 31 / 0.12);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-emerald: var(--emerald);
+  --color-emerald-700: var(--emerald-700);
+  --color-emerald-50: var(--emerald-50);
+  --color-gold: var(--gold);
+  --color-gold-antique: var(--gold-antique);
+  --color-ivory: var(--ivory);
+  --color-navy: var(--navy);
+  --color-ink: var(--ink);
+  --color-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-heading: var(--font-manrope), var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-dm-serif), Georgia, serif;
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --shadow-card: var(--shadow-2);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html { scroll-behavior: smooth; }
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+h1, h2, h3, h4 { font-family: var(--font-heading); letter-spacing: -0.02em; }
+
+:focus-visible {
+  outline: 2px solid var(--gold-antique);
+  outline-offset: 2px;
+}
+
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise 0.4s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
