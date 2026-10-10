@@ -37,7 +37,10 @@ export function dividendFor(d: Snapshot, m: Membership): Paise {
 export const sumSuccessful = (payments: Payment[]): Paise =>
   payments.filter((p) => p.status === "Successful").reduce((s, p) => s + p.amount, 0);
 
-export function computeSummary(d: Snapshot): Summary {
+type Tr = (en: string, vars?: Record<string, string | number>) => string;
+
+/** `tr` translates the generated sentences; defaults to English. */
+export function computeSummary(d: Snapshot, tr: Tr = (s, v) => (v ? s.replace(/\{(\w+)\}/g, (_, k) => String(v[k])) : s)): Summary {
   const liable = d.memberships.filter(isLiable);
   const dated = liable.filter((m) => m.nextDue).map((m) => m.nextDue).sort();
   const nextDueDate = dated[0] ?? null;
@@ -45,7 +48,7 @@ export function computeSummary(d: Snapshot): Summary {
   const nextDueAmount = dueNow.reduce((s, m) => s + (schemeFor(d, m.schemeId)?.rules.instalment ?? 0), 0);
 
   const prized = liable.filter((m) => m.status === "Prized").length;
-  const prizeText = liable.length === 0 ? "No active ticket" : prized === 0 ? "Not yet prized" : `${prized} of ${liable.length} prized (demo)`;
+  const prizeText = liable.length === 0 ? tr("No active ticket") : prized === 0 ? tr("Not yet prized") : tr("{n} of {m} prized (demo)", { n: prized, m: liable.length });
 
   const liableSchemes = new Set(liable.map((m) => m.schemeId));
   const candidates = d.auctions.filter((a) => liableSchemes.has(a.schemeId) && (a.state === "Open" || a.state === "Scheduled"));
@@ -53,9 +56,9 @@ export function computeSummary(d: Snapshot): Summary {
 
   const recon = d.payments.filter((p) => p.status === "Under reconciliation");
   const pendingActions: PendingAction[] = [
-    ...d.notifications.filter((n) => !n.read).map((n) => ({ id: `n-${n.id}`, label: n.title, detail: `Unread ${n.category.toLowerCase()} notification`, href: n.href })),
-    ...(d.customer.kyc === "Action required" ? [{ id: "kyc", label: "Complete KYC verification", detail: "KYC status: Action required", href: "/dashboard/profile" }] : []),
-    ...recon.map((p) => ({ id: `r-${p.id}`, label: `Payment ${p.reference} is under reconciliation`, detail: "No action needed unless it stays unresolved; contact support if so", href: "/dashboard/payments" })),
+    ...d.notifications.filter((n) => !n.read).map((n) => ({ id: `n-${n.id}`, label: tr(n.title), detail: tr("Unread {cat} notification", { cat: tr(n.category).toLowerCase() }), href: n.href })),
+    ...(d.customer.kyc === "Action required" ? [{ id: "kyc", label: tr("Complete KYC verification"), detail: tr("KYC status: Action required"), href: "/dashboard/profile" }] : []),
+    ...recon.map((p) => ({ id: `r-${p.id}`, label: tr("Payment {ref} is under reconciliation", { ref: p.reference }), detail: tr("No action needed unless it stays unresolved; contact support if so"), href: "/dashboard/payments" })),
   ];
 
   return {

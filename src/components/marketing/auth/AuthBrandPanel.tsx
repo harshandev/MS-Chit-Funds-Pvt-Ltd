@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { Check } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { useTr } from "@/i18n/LanguageProvider";
 
 const copy = {
   login: { h: "Welcome", a: "back.", p: "Sign in with your mobile number and a one-time password. No password to remember — and none requested.", pts: ["No password, PAN or Aadhaar is ever asked for", "Demo build: nothing you enter is sent or stored", "Real roles are assigned by the company, never self-selected"] },
@@ -14,6 +15,7 @@ const copy = {
 export function AuthBrandPanel() {
   const path = usePathname();
   const reduce = useReducedMotion();
+  const tr = useTr();
   const c = path.startsWith("/register") ? copy.register : copy.login;
   return (
     <aside aria-label="MS Chit Funds" className="grain relative isolate overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 px-6 py-8 text-ivory lg:sticky lg:top-0 lg:flex lg:h-dvh lg:flex-col lg:justify-between lg:px-12 lg:py-12">
@@ -29,20 +31,20 @@ export function AuthBrandPanel() {
         <motion.circle cx="100" cy="100" r="52" stroke="currentColor" strokeWidth="0.6" animate={reduce ? undefined : { r: [52, 56, 52], opacity: [1, 0.4, 1] }} transition={{ duration: 6, repeat: Infinity }} />
       </svg>
       <div className="flex items-center justify-between">
-        <Link href="/" aria-label="MS Chit Funds home" className="rounded-lg"><Logo tone="dark" /></Link>
+        <Link href="/" aria-label={tr("MS Chit Funds home")} className="rounded-lg"><Logo tone="dark" /></Link>
       </div>
       <div className="mt-8 lg:mt-0">
-        <h2 className="max-w-md text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">{c.h} <span className="font-serif font-normal italic text-gold">{c.a}</span></h2>
-        <p className="mt-4 hidden max-w-md text-ivory/75 sm:block">{c.p}</p>
+        <h2 className="max-w-md text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">{tr(c.h)} <span className="font-serif font-normal italic text-gold">{tr(c.a)}</span></h2>
+        <p className="mt-4 hidden max-w-md text-ivory/75 sm:block">{tr(c.p)}</p>
         <ul className="mt-6 hidden space-y-3 text-sm text-ivory/85 lg:block">
           {c.pts.map((t, i) => (
             <motion.li key={t} initial={reduce ? false : { opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.12 }} className="flex items-start gap-3">
-              <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold text-navy"><Check className="h-3 w-3" strokeWidth={3.5} /></span>{t}
+              <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-gold text-navy"><Check className="h-3 w-3" strokeWidth={3.5} /></span>{tr(t)}
             </motion.li>
           ))}
         </ul>
       </div>
-      <p className="mt-6 hidden text-xs text-ivory/50 lg:block">Demo build — all data, sign-in and approvals are simulated.</p>
+      <p className="mt-6 hidden text-xs text-ivory/50 lg:block">{tr("Demo build — all data, sign-in and approvals are simulated.")}</p>
     </aside>
   );
 }

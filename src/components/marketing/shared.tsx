@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Lock, TriangleAlert } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { T } from "@/i18n/T";
 
 export function Container({ className, children }: { className?: string; children: ReactNode }) {
   return <div className={cn("mx-auto max-w-7xl px-4 sm:px-6", className)}>{children}</div>;
@@ -22,8 +23,8 @@ export { PageHero } from "./pages/PageHero";
 export function LegalPlaceholder({ children }: { children?: ReactNode }) {
   return (
     <div className="rounded-xl border border-dashed border-gold-antique/60 bg-gold/10 px-4 py-3 text-sm text-ink">
-      <p className="flex items-center gap-2 font-semibold"><Lock className="h-3.5 w-3.5 text-gold-antique" aria-hidden />Pending legal approval — to be supplied</p>
-      <p className="mt-1 text-muted">{children ?? "This section will be completed from the approved scheme agreement. No terms are stated here."}</p>
+      <p className="flex items-center gap-2 font-semibold"><Lock className="h-3.5 w-3.5 text-gold-antique" aria-hidden /><T>Pending legal approval — to be supplied</T></p>
+      <p className="mt-1 text-muted">{typeof children === "string" ? <T>{children}</T> : children ?? <T>This section will be completed from the approved scheme agreement. No terms are stated here.</T>}</p>
     </div>
   );
 }

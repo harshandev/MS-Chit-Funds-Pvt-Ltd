@@ -1,4 +1,6 @@
+"use client";
 import { cn } from "@/lib/cn";
+import { useTr } from "@/i18n/LanguageProvider";
 
 type Tone = "neutral" | "success" | "warning" | "danger" | "info" | "gold";
 const tones: Record<Tone, string> = {
@@ -22,5 +24,6 @@ const map: Record<string, Tone> = {
 };
 /** Consistent colour for any status string used in the app. */
 export function StatusBadge({ status }: { status: string }) {
-  return <Badge tone={map[status] ?? "neutral"}>{status}</Badge>;
+  const tr = useTr();
+  return <Badge tone={map[status] ?? "neutral"}>{tr(status)}</Badge>;
 }

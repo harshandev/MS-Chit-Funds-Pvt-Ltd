@@ -10,6 +10,8 @@ import { TextField } from "@/components/ui/fields";
 import { mobileSchema } from "../validation";
 import { AnimatedCheck } from "../pages/AnimatedCheck";
 import { OtpInput } from "./OtpInput";
+import { useTr } from "@/i18n/LanguageProvider";
+import { RichT } from "../pages/RichT";
 
 type DemoRole = Exclude<Role, null>;
 const RESEND_SECONDS = 30;
@@ -25,6 +27,7 @@ function safeNext(raw: string | null, role: DemoRole): string | null {
 
 export function LoginForm() {
   const router = useRouter();
+  const tr = useTr();
   const params = useSearchParams();
   const { signIn } = useDemoAuth();
   const [step, setStep] = useState<"mobile" | "otp">("mobile");
@@ -73,46 +76,46 @@ export function LoginForm() {
 
   return (
     <div className="w-full max-w-md">
-      <h1 className="text-4xl font-extrabold text-emerald">Sign <span className="font-serif font-normal italic text-gold-antique">in</span></h1>
-      <p className="mt-2 text-sm text-muted">Demo sign-in with a mobile number and one-time password. No password, PAN or Aadhaar is ever requested.</p>
+      <h1 className="text-4xl font-extrabold text-emerald"><RichT text="Sign <i>in</i>" /></h1>
+      <p className="mt-2 text-sm text-muted">{tr("Demo sign-in with a mobile number and one-time password. No password, PAN or Aadhaar is ever requested.")}</p>
       <div className="mt-6 overflow-hidden rounded-3xl border border-line/80 bg-white p-6 shadow-[var(--shadow-3)] sm:p-8">
         <AnimatePresence mode="wait" initial={false}>
           {done ? (
             <motion.div key="done" role="status" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center py-8 text-center">
               <AnimatedCheck size={84} />
-              <h2 className="mt-5 font-serif text-3xl text-emerald">Signed in <span className="italic text-gold-antique">(demo)</span></h2>
-              <p className="mt-2 text-sm text-muted">Taking you to the {role === "admin" ? "admin console" : "dashboard"}…</p>
+              <h2 className="mt-5 font-serif text-3xl text-emerald"><RichT text="Signed in <i>(demo)</i>" accent="italic text-gold-antique" /></h2>
+              <p className="mt-2 text-sm text-muted">{tr(role === "admin" ? "Taking you to the admin console…" : "Taking you to the dashboard…")}</p>
             </motion.div>
           ) : step === "mobile" ? (
             <motion.form key="mobile" {...slide} onSubmit={sendOtp} noValidate className="space-y-5">
-              <TextField label="Mobile number" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={mobile} onChange={(e) => setMobile(e.target.value.replace(/\D/g, ""))} hint="10-digit Indian mobile number" error={error} />
+              <TextField label={tr("Mobile number")} inputMode="numeric" autoComplete="tel-national" maxLength={10} value={mobile} onChange={(e) => setMobile(e.target.value.replace(/\D/g, ""))} hint={tr("10-digit Indian mobile number")} error={error ? tr(error) : undefined} />
               <fieldset>
-                <legend className="mb-2 text-sm font-semibold text-ink">Continue as</legend>
+                <legend className="mb-2 text-sm font-semibold text-ink">{tr("Continue as")}</legend>
                 <div className="grid grid-cols-2 gap-3">
                   {([["customer", "Customer demo"], ["admin", "Admin demo"]] as const).map(([v, l]) => (
                     <label key={v} className={`relative flex min-h-12 cursor-pointer items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition-colors focus-within:ring-4 focus-within:ring-gold/40 ${role === v ? "border-emerald text-emerald" : "border-line text-ink hover:border-gold-antique"}`}>
                       {role === v && <motion.span layoutId="role-pill" aria-hidden className="absolute inset-0 rounded-xl bg-emerald-50" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
-                      <input type="radio" name="role" value={v} checked={role === v} onChange={() => setRole(v)} className="relative accent-emerald" /><span className="relative">{l}</span>
+                      <input type="radio" name="role" value={v} checked={role === v} onChange={() => setRole(v)} className="relative accent-emerald" /><span className="relative">{tr(l)}</span>
                     </label>
                   ))}
                 </div>
-                <p className="mt-2 text-xs text-muted">Demo-only role choice, used to preview the customer dashboard or admin console. Real roles will be assigned by the company, never self-selected.</p>
+                <p className="mt-2 text-xs text-muted">{tr("Demo-only role choice, used to preview the customer dashboard or admin console. Real roles will be assigned by the company, never self-selected.")}</p>
               </fieldset>
-              <Button type="submit" size="lg" className="w-full transition-transform active:scale-[0.98]"><Smartphone className="h-4 w-4" />Send OTP</Button>
+              <Button type="submit" size="lg" className="w-full transition-transform active:scale-[0.98]"><Smartphone className="h-4 w-4" />{tr("Send OTP")}</Button>
             </motion.form>
           ) : (
             <motion.form key="otp" {...slide} onSubmit={verify} noValidate className="space-y-5">
-              <p className="text-sm text-muted">Enter the OTP for mobile ending in <span className="font-semibold text-ink">{mobile.slice(-4)}</span>. <button type="button" onClick={() => { setStep("mobile"); setError(undefined); }} className="font-semibold text-emerald underline">Change number</button></p>
-              <div role="note" className="flex items-center gap-2 rounded-xl border border-gold bg-gold/15 px-4 py-3 text-sm font-bold text-ink"><ShieldCheck className="h-4 w-4 shrink-0 text-gold-antique" aria-hidden />DEMO ONLY: development OTP is {demoMode.devOtp}</div>
+              <p className="text-sm text-muted"><RichT text="Enter the OTP for mobile ending in {last}." parts={{ last: <span className="font-semibold text-ink">{mobile.slice(-4)}</span> }} /> <button type="button" onClick={() => { setStep("mobile"); setError(undefined); }} className="font-semibold text-emerald underline">{tr("Change number")}</button></p>
+              <div role="note" className="flex items-center gap-2 rounded-xl border border-gold bg-gold/15 px-4 py-3 text-sm font-bold text-ink"><ShieldCheck className="h-4 w-4 shrink-0 text-gold-antique" aria-hidden />{tr("DEMO ONLY: development OTP is {otp}", { otp: demoMode.devOtp })}</div>
               <div>
                 <OtpInput value={otp} onChange={(v) => { setOtp(v); if (error) setError(undefined); }} onComplete={check} shakeKey={shake} invalid={!!error} disabled={attempts >= MAX_ATTEMPTS} success={done} autoFocus />
                 <AnimatePresence initial={false}>
-                  {error && <motion.p key={error} role="alert" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-3 text-center text-sm font-medium text-danger">{error}</motion.p>}
+                  {error && <motion.p key={error} role="alert" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-3 text-center text-sm font-medium text-danger">{tr(error)}</motion.p>}
                 </AnimatePresence>
               </div>
-              <Button type="submit" size="lg" className="w-full transition-transform active:scale-[0.98]">Verify and continue</Button>
+              <Button type="submit" size="lg" className="w-full transition-transform active:scale-[0.98]">{tr("Verify and continue")}</Button>
               <div className="text-center text-sm">
-                {timer > 0 ? <p className="text-muted" aria-live="polite">Resend OTP in {timer}s</p> : <button type="button" onClick={resend} className="min-h-11 font-semibold text-emerald underline">Resend OTP</button>}
+                {timer > 0 ? <p className="text-muted" aria-live="polite">{tr("Resend OTP in {n}s", { n: timer })}</p> : <button type="button" onClick={resend} className="min-h-11 font-semibold text-emerald underline">{tr("Resend OTP")}</button>}
               </div>
             </motion.form>
           )}

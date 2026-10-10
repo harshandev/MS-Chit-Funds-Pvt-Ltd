@@ -3,6 +3,7 @@ import { useId, type ReactNode } from "react";
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { Check, Clock3, X } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { useTr } from "@/i18n/LanguageProvider";
 import { ErrorState } from "@/components/ui/misc";
 import { Button } from "@/components/ui/Button";
 import { ShimmerBlock, PulseDot } from "@/components/ui/fx";
@@ -122,20 +123,22 @@ const chipCls: Record<ChipTone, string> = {
 export function StatusChip({ status }: { status: string }) {
   const tone = chipTone[status] ?? "idle";
   const reduce = useReducedMotion();
+  const tr = useTr();
   return (
     <AnimatePresence mode="popLayout" initial={false}>
       <motion.span key={status} initial={reduce ? false : { opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ type: "spring", stiffness: 420, damping: 24 }}
         className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset", chipCls[tone])}>
         {tone === "wait" ? <PulseDot /> : tone === "ok" ? <Check className="h-3 w-3" strokeWidth={3} aria-hidden /> : tone === "bad" ? <X className="h-3 w-3" strokeWidth={3} aria-hidden /> : tone === "info" ? <Clock3 className="h-3 w-3" aria-hidden /> : null}
-        {status}
+        {tr(status)}
       </motion.span>
     </AnimatePresence>
   );
 }
 
 export function PageSkeleton() {
+  const tr = useTr();
   return (
-    <div aria-busy="true" aria-label="Loading">
+    <div aria-busy="true" aria-label={tr("Loading")}>
       <ShimmerBlock className="h-9 w-64" />
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {[0, 1, 2].map((i) => <ShimmerBlock key={i} className="h-32 rounded-2xl" />)}
@@ -148,9 +151,10 @@ export function PageSkeleton() {
 /** Shows loading skeleton / error state, then renders children with loaded data. */
 export function DataGate({ children }: { children: (d: Snapshot) => ReactNode }) {
   const { status, data, error, retry } = useDashboard();
+  const tr = useTr();
   if (status === "loading") return <PageSkeleton />;
   if (status === "error" || !data) {
-    return <ErrorState title="We couldn't load your data" text={error ?? "Please try again."} action={<Button onClick={retry}>Try again</Button>} />;
+    return <ErrorState title={tr("We couldn't load your data")} text={tr(error ?? "Please try again.")} action={<Button onClick={retry}>{tr("Try again")}</Button>} />;
   }
   return <>{children(data)}</>;
 }

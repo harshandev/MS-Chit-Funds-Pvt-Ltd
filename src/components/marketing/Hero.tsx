@@ -2,14 +2,14 @@
 import Link from "next/link";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
-import { useLang } from "@/i18n/LanguageProvider";
+import { useLang, useTr } from "@/i18n/LanguageProvider";
 import { buttonClass } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { Tilt } from "@/components/motion/Tilt";
 import { CountUp } from "@/components/motion/CountUp";
 import { computeBreakdown } from "@/lib/chit";
-import { formatINR, formatLakh } from "@/lib/money";
-import { ILLUSTRATIVE_DISCOUNT_BPS, showcaseScheme } from "./constants";
+import { formatINR } from "@/lib/money";
+import { ILLUSTRATIVE_DISCOUNT_BPS, lakh, showcaseScheme } from "./constants";
 import { ChitWheel } from "./home/ChitWheel";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -36,31 +36,32 @@ function HeroTitle({ title }: { title: string }) {
 }
 
 function SummaryCard() {
+  const tr = useTr();
   const reduce = useReducedMotion();
   const s = showcaseScheme;
   const b = computeBreakdown(s.rules, ILLUSTRATIVE_DISCOUNT_BPS);
   const months = [1, 2, 3, 4, 5, 6];
   return (
     <Tilt max={7} className="relative w-full max-w-md rounded-2xl">
-      <div role="group" aria-label="Illustrative financial summary" className="relative overflow-hidden rounded-2xl border border-ivory/15 bg-ivory/[0.07] p-6 shadow-[0_30px_80px_-20px_rgb(0_0_0/0.6)] backdrop-blur-xl sm:p-7">
+      <div role="group" aria-label={tr("Illustrative financial summary")} className="relative overflow-hidden rounded-2xl border border-ivory/15 bg-ivory/[0.07] p-6 shadow-[0_30px_80px_-20px_rgb(0_0_0/0.6)] backdrop-blur-xl sm:p-7">
         <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold/20 blur-3xl" />
         <div className="relative flex items-start justify-between gap-3">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold">Financial summary</p>
-            <p className="mt-1 text-sm font-semibold text-ivory">{s.name}</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold">{tr("Financial summary")}</p>
+            <p className="mt-1 text-sm font-semibold text-ivory">{tr(s.name)}</p>
           </div>
-          <span className="rounded-full border border-gold/50 bg-gold/15 px-2.5 py-0.5 text-xs font-semibold text-gold-soft">Illustrative</span>
+          <span className="rounded-full border border-gold/50 bg-gold/15 px-2.5 py-0.5 text-xs font-semibold text-gold-soft">{tr("Illustrative")}</span>
         </div>
-        <p className="relative mt-6 text-[11px] uppercase tracking-wider text-ivory/60">Net chit for a winning ticket</p>
+        <p className="relative mt-6 text-[11px] uppercase tracking-wider text-ivory/60">{tr("Net chit for a winning ticket")}</p>
         <p className="relative font-serif text-5xl text-ivory tabular-nums"><CountUp value={b.netChit} duration={1.8} format={(n) => formatINR(Math.round(n / 100) * 100)} /></p>
-        <p className="relative text-xs text-ivory/60">of a {formatLakh(b.gross)} chit, after a sample {ILLUSTRATIVE_DISCOUNT_BPS / 100}% auction discount</p>
+        <p className="relative text-xs text-ivory/60">{tr("of a {gross} chit, after a sample {pct}% auction discount", { gross: lakh(tr, b.gross), pct: ILLUSTRATIVE_DISCOUNT_BPS / 100 })}</p>
         <dl className="relative mt-5 grid grid-cols-3 gap-3 border-t border-ivory/15 pt-4 text-sm">
-          <div><dt className="text-[11px] text-ivory/60">Instalment</dt><dd className="font-bold tabular-nums text-ivory"><CountUp value={s.rules.instalment} format={(n) => formatINR(Math.round(n))} /></dd></div>
-          <div><dt className="text-[11px] text-ivory/60">Dividend / ticket</dt><dd className="font-bold tabular-nums text-gold-soft"><CountUp value={b.dividendPerTicket} format={(n) => formatINR(Math.round(n))} /></dd></div>
-          <div><dt className="text-[11px] text-ivory/60">Contribution</dt><dd className="font-bold tabular-nums text-ivory"><CountUp value={b.payableNonWinner} format={(n) => formatINR(Math.round(n))} /></dd></div>
+          <div><dt className="text-[11px] text-ivory/60">{tr("Instalment")}</dt><dd className="font-bold tabular-nums text-ivory"><CountUp value={s.rules.instalment} format={(n) => formatINR(Math.round(n))} /></dd></div>
+          <div><dt className="text-[11px] text-ivory/60">{tr("Dividend / ticket")}</dt><dd className="font-bold tabular-nums text-gold-soft"><CountUp value={b.dividendPerTicket} format={(n) => formatINR(Math.round(n))} /></dd></div>
+          <div><dt className="text-[11px] text-ivory/60">{tr("Contribution")}</dt><dd className="font-bold tabular-nums text-ivory"><CountUp value={b.payableNonWinner} format={(n) => formatINR(Math.round(n))} /></dd></div>
         </dl>
         <div className="relative mt-5 border-t border-ivory/15 pt-4">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-ivory/60">Sample contribution timeline</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-ivory/60">{tr("Sample contribution timeline")}</p>
           <div className="relative mt-5 px-1.5">
             <div aria-hidden className="absolute left-1.5 right-1.5 top-[7px] h-px bg-ivory/15" />
             <motion.div aria-hidden className="absolute left-1.5 right-1.5 top-[7px] h-px origin-left bg-gold" initial={reduce ? false : { scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 1.8, delay: 1.1, ease }} />
@@ -68,21 +69,21 @@ function SummaryCard() {
               {months.map((m, i) => (
                 <li key={m} className="flex flex-col items-center gap-2">
                   <motion.span aria-hidden className="h-[15px] w-[15px] rounded-full border-2 border-gold bg-emerald-950" initial={reduce ? false : { scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 380, damping: 16, delay: 1.1 + i * 0.3 }} />
-                  <span className="text-[11px] font-semibold text-ivory/80">M{m}</span>
+                  <span className="text-[11px] font-semibold text-ivory/80">{tr("M{m}", { m })}</span>
                 </li>
               ))}
             </ol>
           </div>
-          <p className="mt-3 text-xs text-ivory/70">About {formatINR(b.payableNonWinner)} per month after a sample dividend.</p>
+          <p className="mt-3 text-xs text-ivory/70">{tr("About {amt} per month after a sample dividend.", { amt: formatINR(b.payableNonWinner) })}</p>
         </div>
-        <p className="relative mt-4 text-[11px] leading-relaxed text-ivory/55">Illustrative demo scheme. Assumes the same sample discount every month; real auctions vary. Not an offer, quote or return.</p>
+        <p className="relative mt-4 text-[11px] leading-relaxed text-ivory/55">{tr("Illustrative demo scheme. Assumes the same sample discount every month; real auctions vary. Not an offer, quote or return.")}</p>
       </div>
     </Tilt>
   );
 }
 
 export function Hero() {
-  const { t } = useLang();
+  const { t, tr } = useLang();
   const reduce = useReducedMotion();
   const { scrollY } = useScroll();
   const wheelY = useTransform(scrollY, [0, 900], [0, reduce ? 0 : 140]);
@@ -134,8 +135,8 @@ export function Hero() {
         </motion.div>
       </div>
 
-      <a href="#playground" aria-label="Scroll to the interactive chit month" className="absolute bottom-5 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-1 text-[10px] font-bold uppercase tracking-[0.25em] text-ivory/50 hover:text-gold sm:flex">
-        Scroll <ChevronDown className="h-4 w-4 animate-bounce" aria-hidden />
+      <a href="#playground" aria-label={tr("Scroll to the interactive chit month")} className="absolute bottom-5 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-1 text-[10px] font-bold uppercase tracking-[0.25em] text-ivory/50 hover:text-gold sm:flex">
+        {tr("Scroll")} <ChevronDown className="h-4 w-4 animate-bounce" aria-hidden />
       </a>
     </section>
   );

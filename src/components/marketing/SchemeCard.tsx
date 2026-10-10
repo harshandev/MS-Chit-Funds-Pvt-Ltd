@@ -1,21 +1,27 @@
+"use client";
 import Link from "next/link";
 import { ArrowRight, CalendarClock, FileText, Users, Wallet } from "lucide-react";
 import type { Scheme } from "@/data/types";
-import { formatINR, formatLakh } from "@/lib/money";
-import { StatusBadge } from "@/components/ui/Badge";
+import { formatINR } from "@/lib/money";
+import { StatusChip } from "./pages/StatusChip";
 import { buttonClass } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { T } from "@/i18n/T";
+import { useTr } from "@/i18n/LanguageProvider";
+import { useLakh } from "./pages/useLakh";
 
 function Stat({ icon: Icon, label, value }: { icon: typeof Wallet; label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <dt className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted"><Icon className="h-3 w-3 text-gold-antique" aria-hidden />{label}</dt>
+      <dt className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted"><Icon className="h-3 w-3 text-gold-antique" aria-hidden /><T>{label}</T></dt>
       <dd className="mt-0.5 truncate font-bold tabular-nums text-ink">{value}</dd>
     </div>
   );
 }
 
 export function SchemeCard({ scheme, layout = "card" }: { scheme: Scheme; layout?: "card" | "list" }) {
+  const tr = useTr();
+  const lakh = useLakh();
   const r = scheme.rules;
   const list = layout === "list";
   const active = scheme.status === "Active";
@@ -24,23 +30,23 @@ export function SchemeCard({ scheme, layout = "card" }: { scheme: Scheme; layout
       <span aria-hidden className={cn("absolute inset-x-0 top-0 h-1 bg-gradient-to-r", active ? "from-emerald via-gold to-emerald" : "from-line via-gold/50 to-line")} />
       <div className={cn(list && "lg:w-2/5")}>
         <div className="flex flex-wrap items-center gap-2">
-          <StatusBadge status={scheme.status} />
-          <span className="rounded-full border border-gold/50 bg-gold/10 px-2.5 py-0.5 text-xs font-semibold text-ink">Illustrative demo scheme</span>
+          <StatusChip status={scheme.status} />
+          <span className="rounded-full border border-gold/50 bg-gold/10 px-2.5 py-0.5 text-xs font-semibold text-ink"><T>Illustrative demo scheme</T></span>
         </div>
-        <h3 className="mt-4 font-serif text-3xl text-emerald">{formatLakh(r.grossChit)} <span className="italic text-gold-antique">chit</span></h3>
-        <p className="text-sm font-semibold text-ink">{scheme.name}</p>
-        <p className="mt-2 text-sm leading-relaxed text-muted">{scheme.summary}</p>
+        <h3 className="mt-4 font-serif text-3xl text-emerald">{lakh(r.grossChit)} <span className="italic text-gold-antique"><T>chit</T></span></h3>
+        <p className="text-sm font-semibold text-ink"><T>{scheme.name}</T></p>
+        <p className="mt-2 text-sm leading-relaxed text-muted"><T>{scheme.summary}</T></p>
       </div>
       <dl className={cn("grid grid-cols-3 gap-3 rounded-xl bg-ivory p-3.5 text-sm", list ? "lg:flex-1" : "mt-5")}>
-        <Stat icon={Wallet} label="Instalment" value={`${formatINR(r.instalment)}/mo`} />
-        <Stat icon={CalendarClock} label="Duration" value={`${r.instalments} mo`} />
+        <Stat icon={Wallet} label="Instalment" value={`${formatINR(r.instalment)}${tr("/mo")}`} />
+        <Stat icon={CalendarClock} label="Duration" value={tr("{n} mo", { n: r.instalments })} />
         <Stat icon={Users} label="Tickets" value={String(r.tickets)} />
       </dl>
       <div className={cn("flex flex-col", list ? "lg:w-1/4" : "mt-4 flex-1")}>
-        <p className="text-sm text-muted">{scheme.commencementNote}</p>
+        <p className="text-sm text-muted"><T>{scheme.commencementNote}</T></p>
         <div className="mt-auto flex flex-col gap-2 pt-4">
-          <Link href={`/chit-plans/${scheme.id}`} className={buttonClass("primary", "md", "group/btn transition-transform active:scale-[0.98]")}>View details <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" /></Link>
-          <Link href={`/chit-plans/${scheme.id}#terms`} className={buttonClass("ghost", "sm")}><FileText className="h-4 w-4" />Scheme terms</Link>
+          <Link href={`/chit-plans/${scheme.id}`} className={buttonClass("primary", "md", "group/btn transition-transform active:scale-[0.98]")}><T>View details</T> <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" /></Link>
+          <Link href={`/chit-plans/${scheme.id}#terms`} className={buttonClass("ghost", "sm")}><FileText className="h-4 w-4" /><T>Scheme terms</T></Link>
         </div>
       </div>
     </article>

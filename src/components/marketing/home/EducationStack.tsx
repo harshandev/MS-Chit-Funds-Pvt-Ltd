@@ -6,6 +6,7 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 import { learnTopics } from "./topics";
 import { Reveal } from "@/components/motion/Reveal";
 import { Eyebrow } from "@/components/ui/Card";
+import { useTr } from "@/i18n/LanguageProvider";
 import { cn } from "@/lib/cn";
 
 const details: Record<string, string[]> = {
@@ -17,15 +18,16 @@ const details: Record<string, string[]> = {
 };
 
 export function EducationStack() {
+  const tr = useTr();
   const [open, setOpen] = useState<string>(learnTopics[0].id);
   return (
     <section aria-labelledby="learn-title" className="relative overflow-x-clip bg-white py-20 sm:py-28">
       <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr]">
         <Reveal>
-          <Eyebrow>Learn</Eyebrow>
-          <h2 id="learn-title" className="mt-2 font-serif text-4xl text-emerald sm:text-5xl">Understand before <em className="text-gold-antique">you decide.</em></h2>
-          <p className="mt-4 text-base leading-relaxed text-muted">Short, plain-language guides to the ideas behind a chit. Tap a card to open it, then read the full guide when you are ready.</p>
-          <p className="mt-6 text-xs text-muted">General education only; your scheme agreement governs your participation.</p>
+          <Eyebrow>{tr("Learn")}</Eyebrow>
+          <h2 id="learn-title" className="mt-2 font-serif text-4xl text-emerald sm:text-5xl">{tr("Understand before")} <em className="text-gold-antique">{tr("you decide.")}</em></h2>
+          <p className="mt-4 text-base leading-relaxed text-muted">{tr("Short, plain-language guides to the ideas behind a chit. Tap a card to open it, then read the full guide when you are ready.")}</p>
+          <p className="mt-6 text-xs text-muted">{tr("General education only; your scheme agreement governs your participation.")}</p>
         </Reveal>
         <LayoutGroup>
           <ul className="space-y-3">
@@ -37,7 +39,7 @@ export function EducationStack() {
                   <h3>
                     <button type="button" aria-expanded={isOpen} aria-controls={`learn-${t.id}`} onClick={() => setOpen(isOpen ? "" : t.id)} className="flex min-h-16 w-full items-center gap-4 p-4 text-left sm:p-5">
                       <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors duration-300", isOpen ? "bg-emerald text-gold" : "bg-emerald-50 text-emerald")}><t.icon className="h-5 w-5" aria-hidden /></span>
-                      <span className="flex-1"><span className="block text-xs font-bold text-gold-antique">{String(i + 1).padStart(2, "0")}</span><span className="block text-base font-bold text-emerald sm:text-lg">{t.title}</span></span>
+                      <span className="flex-1"><span className="block text-xs font-bold text-gold-antique">{String(i + 1).padStart(2, "0")}</span><span className="block text-base font-bold text-emerald sm:text-lg">{tr(t.title)}</span></span>
                       <ChevronDown className={cn("h-5 w-5 shrink-0 text-muted transition-transform duration-300", isOpen && "rotate-180")} aria-hidden />
                     </button>
                   </h3>
@@ -45,13 +47,13 @@ export function EducationStack() {
                     {isOpen && (
                       <motion.div id={`learn-${t.id}`} key="p" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
                         <div className="px-5 pb-5 sm:pl-[5.25rem]">
-                          <p className="text-sm leading-relaxed text-muted">{t.text}</p>
+                          <p className="text-sm leading-relaxed text-muted">{tr(t.text)}</p>
                           <ul className="mt-3 space-y-2">
                             {details[t.id].map((d, k) => (
-                              <motion.li key={d} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + k * 0.08 }} className="flex gap-2.5 text-sm text-ink"><span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />{d}</motion.li>
+                              <motion.li key={d} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + k * 0.08 }} className="flex gap-2.5 text-sm text-ink"><span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />{tr(d)}</motion.li>
                             ))}
                           </ul>
-                          <Link href={`/how-it-works#${t.id}`} className="mt-4 inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-emerald hover:text-emerald-700">Read the full guide <ArrowRight className="h-4 w-4" aria-hidden /></Link>
+                          <Link href={`/how-it-works#${t.id}`} className="mt-4 inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-emerald hover:text-emerald-700">{tr("Read the full guide")} <ArrowRight className="h-4 w-4" aria-hidden /></Link>
                         </div>
                       </motion.div>
                     )}

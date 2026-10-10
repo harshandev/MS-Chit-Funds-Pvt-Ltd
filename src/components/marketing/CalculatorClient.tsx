@@ -13,6 +13,8 @@ import { ChitChart, ProjectionChart, type ProjectionPoint } from "./ChitChart";
 import { Money } from "./pages/Money";
 import { RangeSlider } from "./pages/RangeSlider";
 import { SplitBar } from "./pages/SplitBar";
+import { useTr } from "@/i18n/LanguageProvider";
+import { RichT } from "./pages/RichT";
 
 const DEFAULTS = { gross: "300000", tickets: "30", instalments: "30", instalment: "10000", discount: "15", commission: "5", winMonth: "1" };
 type Inputs = typeof DEFAULTS;
@@ -42,10 +44,11 @@ const bounds: Record<Key, { min: number; max: number; int: boolean }> = {
 };
 
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  const tr = useTr();
   return (
     <div className={`flex items-baseline justify-between gap-4 py-2.5 ${strong ? "font-bold text-emerald" : "text-ink"}`}>
-      <dt className="text-sm">{label}</dt>
-      <dd className="text-right tabular-nums">{value}</dd>
+      <dt className="text-sm">{tr(label)}</dt>
+      <dd className="text-right tabular-nums">{tr(value)}</dd>
     </div>
   );
 }
@@ -54,28 +57,30 @@ function CalcField({ label, value, onChange, onCommit, error, hint, slider, pref
   label: string; value: string; onChange: (v: string) => void; onCommit: () => void; error?: string; hint?: string;
   slider: { min: number; max: number; step: number; tone?: "emerald" | "gold" }; prefix?: string; suffix?: string;
 }) {
+  const tr = useTr();
   const id = useId();
   const n = num(value);
   return (
     <div className="rounded-2xl border border-line/80 bg-white p-4 shadow-[var(--shadow-1)] transition-shadow focus-within:shadow-[var(--shadow-2)]">
       <div className="flex items-center justify-between gap-3">
-        <label htmlFor={id} className="text-sm font-semibold text-ink">{label}</label>
+        <label htmlFor={id} className="text-sm font-semibold text-ink">{tr(label)}</label>
         <div className={cn("flex items-center rounded-xl border bg-ivory/60 px-3 transition focus-within:border-emerald focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald/10", error ? "border-danger" : "border-line")}>
           {prefix && <span className="text-sm text-muted">{prefix}</span>}
           <input id={id} type="number" inputMode="decimal" value={value} min={slider.min} step={slider.step} onChange={(e) => onChange(e.target.value)} onBlur={onCommit} aria-invalid={!!error} aria-describedby={error ? `${id}-e` : undefined} className="h-11 w-28 bg-transparent text-right text-base font-bold tabular-nums text-emerald focus:outline-none sm:w-32" />
           {suffix && <span className="ml-1 text-sm text-muted">{suffix}</span>}
         </div>
       </div>
-      <RangeSlider label={`${label} slider`} hideLabel value={Number.isFinite(n) ? n : slider.min} min={slider.min} max={slider.max} step={slider.step} onChange={(v) => onChange(String(v))} tone={slider.tone} className="mt-2" />
+      <RangeSlider label={tr("{label} slider", { label: tr(label) })} hideLabel value={Number.isFinite(n) ? n : slider.min} min={slider.min} max={slider.max} step={slider.step} onChange={(v) => onChange(String(v))} tone={slider.tone} className="mt-2" />
       <AnimatePresence initial={false}>
-        {error ? <motion.p key="e" id={`${id}-e`} role="alert" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-2 text-xs font-medium text-danger">{error}</motion.p>
-          : hint ? <p key="h" className="mt-2 text-xs text-muted">{hint}</p> : null}
+        {error ? <motion.p key="e" id={`${id}-e`} role="alert" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-2 text-xs font-medium text-danger">{tr(error)}</motion.p>
+          : hint ? <p key="h" className="mt-2 text-xs text-muted">{tr(hint)}</p> : null}
       </AnimatePresence>
     </div>
   );
 }
 
 export function CalculatorClient() {
+  const tr = useTr();
   const [i, setI] = useState<Inputs>(DEFAULTS);
 
   const update = (k: Key) => (v: string) => setI((p) => {
@@ -130,9 +135,9 @@ export function CalculatorClient() {
   }, [b, rules, i.winMonth]);
 
   const segs = b ? [
-    { label: "Net chit to winner", value: b.netChit, color: "var(--emerald)" },
-    { label: "Foreman commission", value: Math.min(b.commission, b.discount), color: "var(--gold)" },
-    { label: "Dividend pool", value: b.distributable, color: "var(--navy)" },
+    { label: tr("Net chit to winner"), value: b.netChit, color: "var(--emerald)" },
+    { label: tr("Foreman commission"), value: Math.min(b.commission, b.discount), color: "var(--gold)" },
+    { label: tr("Dividend pool"), value: b.distributable, color: "var(--navy)" },
   ] : [];
   const totalPaid = projection.length ? projection[projection.length - 1].paid * 100 : 0;
 
@@ -141,25 +146,25 @@ export function CalculatorClient() {
       <div className="grid gap-8 lg:grid-cols-5 [&>*]:min-w-0">
         <div className="space-y-4 lg:col-span-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-xl font-extrabold text-emerald">Scheme inputs</h2>
+            <h2 className="text-xl font-extrabold text-emerald">{tr("Scheme inputs")}</h2>
             <div className="flex flex-wrap gap-1">
-              <Button variant="ghost" size="sm" onClick={() => setI((p) => ({ ...p, instalment: String(Math.round(num(p.gross) / num(p.tickets))) }))} disabled={!!errs.gross || !!errs.tickets}><Sparkles className="h-4 w-4" />Instalment = chit ÷ tickets</Button>
-              <Button variant="ghost" size="sm" onClick={() => setI(DEFAULTS)}><RotateCcw className="h-4 w-4" />Reset</Button>
+              <Button variant="ghost" size="sm" onClick={() => setI((p) => ({ ...p, instalment: String(Math.round(num(p.gross) / num(p.tickets))) }))} disabled={!!errs.gross || !!errs.tickets}><Sparkles className="h-4 w-4" />{tr("Instalment = chit ÷ tickets")}</Button>
+              <Button variant="ghost" size="sm" onClick={() => setI(DEFAULTS)}><RotateCcw className="h-4 w-4" />{tr("Reset")}</Button>
             </div>
           </div>
-          <form className="grid gap-4 sm:grid-cols-2" onSubmit={(e) => e.preventDefault()} noValidate aria-label="Calculator inputs">
+          <form className="grid gap-4 sm:grid-cols-2" onSubmit={(e) => e.preventDefault()} noValidate aria-label={tr("Calculator inputs")}>
             <CalcField label="Gross chit" prefix="₹" value={i.gross} onChange={update("gross")} onCommit={commit("gross")} error={errs.gross} slider={{ min: 50000, max: 5000000, step: 10000 }} hint="The total pot each month." />
             <CalcField label="Number of tickets" value={i.tickets} onChange={update("tickets")} onCommit={commit("tickets")} error={errs.tickets} slider={{ min: 5, max: 100, step: 1 }} />
             <CalcField label="Number of instalments" value={i.instalments} onChange={update("instalments")} onCommit={commit("instalments")} error={errs.instalments} slider={{ min: 5, max: 100, step: 1 }} />
             <CalcField label="Monthly instalment" prefix="₹" value={i.instalment} onChange={update("instalment")} onCommit={commit("instalment")} error={errs.instalment} slider={{ min: 500, max: 200000, step: 500 }} />
-            <CalcField label="Illustrative discount" suffix="%" value={i.discount} onChange={update("discount")} onCommit={commit("discount")} error={errs.discount} slider={{ min: 0, max: MAX_DISCOUNT_BPS / 100, step: 0.5, tone: "gold" }} hint={`Configured maximum in this demo: ${formatBps(MAX_DISCOUNT_BPS)}`} />
+            <CalcField label="Illustrative discount" suffix="%" value={i.discount} onChange={update("discount")} onCommit={commit("discount")} error={errs.discount} slider={{ min: 0, max: MAX_DISCOUNT_BPS / 100, step: 0.5, tone: "gold" }} hint={tr("Configured maximum in this demo: {pct}", { pct: formatBps(MAX_DISCOUNT_BPS) })} />
             <CalcField label="Foreman commission" suffix="%" value={i.commission} onChange={update("commission")} onCommit={commit("commission")} error={errs.commission} slider={{ min: 0, max: 10, step: 0.5, tone: "gold" }} hint="Configured per scheme; editable here for what-if only." />
             <div className="sm:col-span-2">
               <CalcField label="Assumed winning instalment no." value={i.winMonth} onChange={update("winMonth")} onCommit={commit("winMonth")} error={errs.winMonth} slider={{ min: 1, max: Math.max(1, Math.min(100, Number.isInteger(num(i.instalments)) ? num(i.instalments) : 30)), step: 1 }} hint="Used to count remaining instalments after winning." />
             </div>
           </form>
           <AnimatePresence>
-            {notes.length > 0 && <motion.ul initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-1 overflow-hidden rounded-xl border border-warning/40 bg-warning/10 p-3 text-xs text-ink">{notes.map((n) => <li key={n}>{n}</li>)}</motion.ul>}
+            {notes.length > 0 && <motion.ul initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-1 overflow-hidden rounded-xl border border-warning/40 bg-warning/10 p-3 text-xs text-ink">{notes.map((n) => <li key={n}>{tr(n)}</li>)}</motion.ul>}
           </AnimatePresence>
         </div>
 
@@ -168,26 +173,26 @@ export function CalculatorClient() {
             <div className="grain relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 p-6 text-ivory shadow-[var(--shadow-3)]">
               <div aria-hidden className="aurora pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-gold/25 blur-3xl" />
               <div className="relative">
-                <p className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-navy">Illustrative — not investment returns or a quote</p>
+                <p className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-navy">{tr("Illustrative — not investment returns or a quote")}</p>
                 <AnimatePresence mode="wait" initial={false}>
                   {b && rules ? (
                     <motion.div key="ok" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-ivory/60">Net chit amount to the winning ticket</p>
+                      <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-ivory/60">{tr("Net chit amount to the winning ticket")}</p>
                       <p className="font-serif text-5xl text-gold-soft sm:text-6xl"><Money paise={b.netChit} /></p>
                       <dl className="mt-5 grid grid-cols-2 gap-3">
-                        <div className="rounded-2xl bg-ivory/5 p-3 ring-1 ring-ivory/10"><dt className="text-[11px] text-ivory/60">Non-winner pays</dt><dd className="mt-0.5 text-lg font-bold tabular-nums"><Money paise={b.payableNonWinner} /></dd></div>
-                        <div className="rounded-2xl bg-ivory/5 p-3 ring-1 ring-ivory/10"><dt className="text-[11px] text-ivory/60">Dividend per ticket</dt><dd className="mt-0.5 text-lg font-bold tabular-nums"><Money paise={b.dividendPerTicket} /></dd></div>
+                        <div className="rounded-2xl bg-ivory/5 p-3 ring-1 ring-ivory/10"><dt className="text-[11px] text-ivory/60">{tr("Non-winner pays")}</dt><dd className="mt-0.5 text-lg font-bold tabular-nums"><Money paise={b.payableNonWinner} /></dd></div>
+                        <div className="rounded-2xl bg-ivory/5 p-3 ring-1 ring-ivory/10"><dt className="text-[11px] text-ivory/60">{tr("Dividend per ticket")}</dt><dd className="mt-0.5 text-lg font-bold tabular-nums"><Money paise={b.dividendPerTicket} /></dd></div>
                       </dl>
                     </motion.div>
                   ) : (
-                    <motion.p key="bad" role="alert" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-5 flex items-start gap-2 rounded-2xl bg-danger/20 p-4 text-sm"><TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />Fix the highlighted inputs to see results.</motion.p>
+                    <motion.p key="bad" role="alert" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-5 flex items-start gap-2 rounded-2xl bg-danger/20 p-4 text-sm"><TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />{tr("Fix the highlighted inputs to see results.")}</motion.p>
                   )}
                 </AnimatePresence>
               </div>
             </div>
             {b && rules && (
               <Card><CardBody>
-                <h2 className="text-lg font-bold text-emerald">Where the gross chit goes</h2>
+                <h2 className="text-lg font-bold text-emerald">{tr("Where the gross chit goes")}</h2>
                 <div className="mt-3"><SplitBar segs={segs} className="h-4" /></div>
                 <div className="mt-4"><ChitChart b={b} /></div>
               </CardBody></Card>
@@ -200,16 +205,16 @@ export function CalculatorClient() {
         <div className="mt-10 grid gap-8 lg:grid-cols-5 [&>*]:min-w-0">
           <Reveal className="lg:col-span-3">
             <Card><CardBody>
-              <h2 className="text-lg font-bold text-emerald">Month-by-month <span className="font-serif font-normal italic text-gold-antique">timeline</span></h2>
-              <p className="mt-1 text-sm text-muted">Cumulative amounts for one ticket that wins in instalment {i.winMonth}. Assumes the same sample discount every month. A cash-flow illustration only — not a return or a forecast.</p>
+              <h2 className="text-lg font-bold text-emerald"><RichT text="Month-by-month <i>timeline</i>" /></h2>
+              <p className="mt-1 text-sm text-muted">{tr("Cumulative amounts for one ticket that wins in instalment {n}. Assumes the same sample discount every month. A cash-flow illustration only — not a return or a forecast.", { n: i.winMonth })}</p>
               <div className="mt-4"><ProjectionChart data={projection} winMonth={num(i.winMonth)} /></div>
-              <p className="mt-3 text-sm text-ink">Total paid over {rules.instalments} instalments in this illustration: <strong className="tabular-nums text-emerald"><AnimatedNumber value={totalPaid / 100} format={(n) => formatINR(Math.round(n) * 100)} /></strong></p>
+              <p className="mt-3 text-sm text-ink"><RichT text="Total paid over {n} instalments in this illustration: {amount}" vars={{ n: rules.instalments }} parts={{ amount: <strong className="tabular-nums text-emerald"><AnimatedNumber value={totalPaid / 100} format={(n) => formatINR(Math.round(n) * 100)} /></strong> }} /></p>
             </CardBody></Card>
           </Reveal>
           <Reveal className="lg:col-span-2" delay={0.1}>
             <div className="space-y-6">
               <Card><CardBody>
-                <h2 className="text-lg font-bold text-emerald">All results</h2>
+                <h2 className="text-lg font-bold text-emerald">{tr("All results")}</h2>
                 <dl className="mt-3 divide-y divide-line">
                   <Row label="Gross chit" value={formatINR(b.gross)} />
                   <Row label="Illustrative discount" value={formatINR(b.discount)} />
@@ -223,30 +228,30 @@ export function CalculatorClient() {
                 </dl>
               </CardBody></Card>
               <Card><CardBody>
-                <h2 className="text-lg font-bold text-emerald">Assumptions</h2>
+                <h2 className="text-lg font-bold text-emerald">{tr("Assumptions")}</h2>
                 <dl className="mt-3 divide-y divide-line text-sm">
                   <Row label="Dividend shared by" value="All tickets" />
                   <Row label="Winning ticket receives later dividends" value="No" />
-                  <Row label="Maximum discount" value={`${formatBps(MAX_DISCOUNT_BPS)} of gross chit`} />
+                  <Row label="Maximum discount" value={tr("{pct} of gross chit", { pct: formatBps(MAX_DISCOUNT_BPS) })} />
                   <Row label="Commission taken from" value="The auction discount" />
                   <Row label="Timeline discount" value="Same sample discount each month" />
                   <Row label="Rounding" value="Whole paise; dividend rounded down" />
                 </dl>
-                <p className="mt-3 text-xs text-muted">Real schemes follow their approved agreement; these assumptions are demo defaults.</p>
+                <p className="mt-3 text-xs text-muted">{tr("Real schemes follow their approved agreement; these assumptions are demo defaults.")}</p>
               </CardBody></Card>
             </div>
           </Reveal>
         </div>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-4 py-3 shadow-[0_-8px_30px_-12px_rgb(24_37_31/0.2)] backdrop-blur lg:hidden" role="region" aria-label="Result summary">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-4 py-3 shadow-[0_-8px_30px_-12px_rgb(24_37_31/0.2)] backdrop-blur lg:hidden" role="region" aria-label={tr("Result summary")}>
         {b ? (
           <div className="flex items-center justify-between gap-4 text-sm">
-            <div><p className="text-xs text-muted">Net chit</p><p className="font-bold tabular-nums text-emerald"><Money paise={b.netChit} /></p></div>
-            <div><p className="text-xs text-muted">Non-winner payable</p><p className="font-bold tabular-nums text-emerald"><Money paise={b.payableNonWinner} /></p></div>
-            <p className="max-w-[7rem] text-[11px] font-semibold leading-tight text-gold-antique">Illustrative estimate</p>
+            <div><p className="text-xs text-muted">{tr("Net chit")}</p><p className="font-bold tabular-nums text-emerald"><Money paise={b.netChit} /></p></div>
+            <div><p className="text-xs text-muted">{tr("Non-winner payable")}</p><p className="font-bold tabular-nums text-emerald"><Money paise={b.payableNonWinner} /></p></div>
+            <p className="max-w-[7rem] text-[11px] font-semibold leading-tight text-gold-antique">{tr("Illustrative estimate")}</p>
           </div>
-        ) : <p className="text-sm text-danger">Fix the highlighted inputs to see results.</p>}
+        ) : <p className="text-sm text-danger">{tr("Fix the highlighted inputs to see results.")}</p>}
       </div>
     </div>
   );

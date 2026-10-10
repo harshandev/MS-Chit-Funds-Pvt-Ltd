@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Container, DraftBanner, PageHero } from "./shared";
 import { LegalToc } from "./pages/LegalToc";
 import { Reveal } from "@/components/motion/Reveal";
+import { LegalNotice } from "./pages/LegalNotice";
 
 const slug = (h: string) => "s-" + h.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
@@ -15,6 +16,7 @@ export function LegalPage({ title, intro, sections, children }: { title: string;
           <LegalToc items={toc} />
         </div>
         <div className="max-w-3xl">
+          <LegalNotice />
           <DraftBanner>DRAFT TEMPLATE — pending legal review. This text is a structural placeholder and is not a binding or approved legal document. It will be replaced with counsel-approved wording before launch.</DraftBanner>
           <div className="mt-8 space-y-10">
             {sections.map((s) => (

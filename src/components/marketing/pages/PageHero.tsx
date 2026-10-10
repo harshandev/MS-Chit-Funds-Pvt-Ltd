@@ -5,10 +5,11 @@ import { motion, useReducedMotion, useScroll, useTransform } from "motion/react"
 import { ChevronRight } from "lucide-react";
 import { SplitWords } from "@/components/motion/Reveal";
 import { cn } from "@/lib/cn";
+import { useTr } from "@/i18n/LanguageProvider";
 
 /** Dark emerald stage with drifting aurora, grain and a gold hairline. Renders the page's single h1. */
-export function PageHero({ eyebrow, title, accent, intro, children, crumbs, className, tall }: {
-  eyebrow: string; title: string; accent?: string; intro?: string; children?: ReactNode;
+export function PageHero({ eyebrow, title, accent, intro, introVars, children, crumbs, className, tall }: {
+  eyebrow: string; title: string; accent?: string; intro?: string; introVars?: Record<string, string>; children?: ReactNode;
   crumbs?: { label: string; href?: string }[]; className?: string; tall?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
@@ -16,7 +17,8 @@ export function PageHero({ eyebrow, title, accent, intro, children, crumbs, clas
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y1 = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 90]);
   const y2 = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : -60]);
-  const trail = crumbs ?? [{ label: "Home", href: "/" }, { label: eyebrow }];
+  const tr = useTr();
+  const trail = (crumbs ?? [{ label: "Home", href: "/" }, { label: eyebrow }]).map((c) => ({ ...c, label: tr(c.label) }));
   return (
     <header ref={ref} className={cn("grain relative isolate overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-ivory", className)}>
       <motion.div aria-hidden style={{ y: y1 }} className="pointer-events-none absolute -left-24 -top-32 -z-10 h-96 w-96">
@@ -34,7 +36,7 @@ export function PageHero({ eyebrow, title, accent, intro, children, crumbs, clas
         </g>
       </svg>
       <div className={cn("mx-auto max-w-7xl px-4 sm:px-6", tall ? "py-20 sm:py-28" : "py-12 sm:py-16")}>
-        <nav aria-label="Breadcrumb" className="mb-5">
+        <nav aria-label={tr("Breadcrumb")} className="mb-5">
           <ol className="flex flex-wrap items-center gap-1 text-xs font-semibold uppercase tracking-[0.18em] text-ivory/60">
             {trail.map((c, i) => (
               <li key={i} className="flex items-center gap-1">
@@ -46,10 +48,10 @@ export function PageHero({ eyebrow, title, accent, intro, children, crumbs, clas
         </nav>
         <div className="max-w-3xl">
           <h1 className="text-4xl font-extrabold leading-[1.08] text-ivory sm:text-5xl lg:text-6xl">
-            <SplitWords text={title} />
-            {accent && <> <span className="inline-block font-serif font-normal italic text-gold"><SplitWords text={accent} delay={0.25} /></span></>}
+            <SplitWords text={tr(title)} />
+            {accent && <> <span className="inline-block font-serif font-normal italic text-gold"><SplitWords text={tr(accent)} delay={0.25} /></span></>}
           </h1>
-          {intro && <motion.p initial={reduce ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.35, ease: [0.22, 1, 0.36, 1] }} className="mt-5 max-w-2xl text-base leading-relaxed text-ivory/75 sm:text-lg">{intro}</motion.p>}
+          {intro && <motion.p initial={reduce ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.35, ease: [0.22, 1, 0.36, 1] }} className="mt-5 max-w-2xl text-base leading-relaxed text-ivory/75 sm:text-lg">{tr(intro, introVars && Object.fromEntries(Object.entries(introVars).map(([k, v]) => [k, tr(v)])))}</motion.p>}
           {children && <motion.div initial={reduce ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.5, ease: [0.22, 1, 0.36, 1] }} className="mt-6">{children}</motion.div>}
         </div>
       </div>

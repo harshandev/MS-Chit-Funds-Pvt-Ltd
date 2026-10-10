@@ -4,12 +4,14 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { useTr } from "@/i18n/LanguageProvider";
 
 /** Edge-docked sheet with a spring slide and swipe-to-dismiss. Focus-trapped and keyboard dismissible via Radix. */
 export function SideSheet({ open, onOpenChange, title, description, side = "left", children, className, closeClassName }: {
   open: boolean; onOpenChange: (o: boolean) => void; title: string; description: string; side?: "left" | "right"; children: ReactNode; className?: string; closeClassName?: string;
 }) {
   const reduce = useReducedMotion();
+  const tr = useTr();
   const dir = side === "left" ? -1 : 1;
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
@@ -33,7 +35,7 @@ export function SideSheet({ open, onOpenChange, title, description, side = "left
               >
                 <D.Title className="sr-only">{title}</D.Title>
                 <D.Description className="sr-only">{description}</D.Description>
-                <D.Close className={cn("absolute right-3 top-3 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full", closeClassName)} aria-label="Close menu"><X className="h-5 w-5" /></D.Close>
+                <D.Close className={cn("absolute right-3 top-3 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full", closeClassName)} aria-label={tr("Close menu")}><X className="h-5 w-5" /></D.Close>
                 {children}
               </motion.div>
             </D.Content>

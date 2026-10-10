@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { useTr } from "@/i18n/LanguageProvider";
 
 interface Props {
   open: boolean;
@@ -20,6 +21,7 @@ const ease = [0.22, 1, 0.36, 1] as const;
 
 export function Dialog({ open, onOpenChange, title, description, children, footer, variant = "dialog" }: Props) {
   const drawer = variant === "drawer";
+  const tr = useTr();
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
       <AnimatePresence>
@@ -41,10 +43,10 @@ export function Dialog({ open, onOpenChange, title, description, children, foote
               >
                 <div className="flex items-start justify-between gap-4 border-b border-line p-5">
                   <div>
-                    <D.Title className="text-lg font-bold text-emerald">{title}</D.Title>
-                    <D.Description className={cn("mt-1 text-sm text-muted", !description && "sr-only")}>{description ?? title}</D.Description>
+                    <D.Title className="text-lg font-bold text-emerald">{tr(title)}</D.Title>
+                    <D.Description className={cn("mt-1 text-sm text-muted", !description && "sr-only")}>{tr(description ?? title)}</D.Description>
                   </div>
-                  <D.Close className="rounded-lg p-2 text-muted transition-colors hover:bg-ivory hover:text-ink" aria-label="Close"><X className="h-5 w-5" /></D.Close>
+                  <D.Close className="rounded-lg p-2 text-muted transition-colors hover:bg-ivory hover:text-ink" aria-label={tr("Close")}><X className="h-5 w-5" /></D.Close>
                 </div>
                 <div className="overflow-y-auto p-5 text-sm">{children}</div>
                 {footer && <div className="flex flex-wrap justify-end gap-3 border-t border-line p-4">{footer}</div>}
@@ -61,12 +63,13 @@ export function Dialog({ open, onOpenChange, title, description, children, foote
 export function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel = "Confirm", onConfirm, danger }: {
   open: boolean; onOpenChange: (o: boolean) => void; title: string; description: string; confirmLabel?: string; onConfirm: () => void; danger?: boolean;
 }) {
+  const tr = useTr();
   return (
     <Dialog open={open} onOpenChange={onOpenChange} title={title} description={description}
       footer={
         <>
-          <button className="min-h-10 rounded-lg px-4 text-sm font-semibold text-muted transition-colors hover:bg-ivory" onClick={() => onOpenChange(false)}>Cancel</button>
-          <button className={cn("min-h-10 rounded-lg px-4 text-sm font-semibold text-white transition-transform active:scale-[0.97]", danger ? "bg-danger" : "bg-emerald")} onClick={() => { onConfirm(); onOpenChange(false); }}>{confirmLabel}</button>
+          <button className="min-h-10 rounded-lg px-4 text-sm font-semibold text-muted transition-colors hover:bg-ivory" onClick={() => onOpenChange(false)}>{tr("Cancel")}</button>
+          <button className={cn("min-h-10 rounded-lg px-4 text-sm font-semibold text-white transition-transform active:scale-[0.97]", danger ? "bg-danger" : "bg-emerald")} onClick={() => { onConfirm(); onOpenChange(false); }}>{tr(confirmLabel)}</button>
         </>
       }
     />

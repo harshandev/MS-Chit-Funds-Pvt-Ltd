@@ -3,6 +3,7 @@ import { useAnimationControls, useReducedMotion, motion } from "motion/react";
 import { useEffect, useRef, type ClipboardEvent, type KeyboardEvent } from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { useTr } from "@/i18n/LanguageProvider";
 
 const LEN = 6;
 
@@ -13,6 +14,7 @@ export function OtpInput({ value, onChange, onComplete, shakeKey = 0, invalid, s
   const refs = useRef<(HTMLInputElement | null)[]>([]);
   const controls = useAnimationControls();
   const reduce = useReducedMotion();
+  const tr = useTr();
 
   useEffect(() => {
     if (shakeKey > 0) refs.current[0]?.focus();
@@ -47,7 +49,7 @@ export function OtpInput({ value, onChange, onComplete, shakeKey = 0, invalid, s
   };
 
   return (
-    <motion.div animate={controls} role="group" aria-label={label} className="flex justify-between gap-2 sm:gap-3">
+    <motion.div animate={controls} role="group" aria-label={tr(label)} className="flex justify-between gap-2 sm:gap-3">
       {Array.from({ length: LEN }, (_, i) => (
         <div key={i} className="relative">
           <input
@@ -60,7 +62,7 @@ export function OtpInput({ value, onChange, onComplete, shakeKey = 0, invalid, s
             autoFocus={autoFocus && i === 0}
             inputMode="numeric"
             autoComplete={i === 0 ? "one-time-code" : "off"}
-            aria-label={`Digit ${i + 1} of ${LEN}`}
+            aria-label={tr("Digit {n} of {total}", { n: i + 1, total: LEN })}
             aria-invalid={invalid || undefined}
             disabled={disabled || success}
             maxLength={i === 0 ? LEN : 2}

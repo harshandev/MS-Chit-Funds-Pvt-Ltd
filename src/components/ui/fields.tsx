@@ -1,18 +1,20 @@
 "use client";
 import { cn } from "@/lib/cn";
 import { AnimatePresence, motion } from "motion/react";
+import { useTr } from "@/i18n/LanguageProvider";
 import { forwardRef, useId, type InputHTMLAttributes, type SelectHTMLAttributes, type TextareaHTMLAttributes, type ReactNode } from "react";
 
 const control = "w-full min-h-11 rounded-lg border border-line bg-white px-3.5 text-sm text-ink shadow-[var(--shadow-1)] transition-[border-color,box-shadow] duration-200 placeholder:text-muted/70 hover:border-ink/25 focus:border-emerald focus:outline-none focus:ring-4 focus:ring-emerald/10 disabled:bg-ivory";
 
 function Wrap({ id, label, hint, error, children }: { id: string; label: string; hint?: string; error?: string; children: ReactNode }) {
+  const tr = useTr();
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-semibold text-ink">{label}</label>
+      <label htmlFor={id} className="mb-1.5 block text-sm font-semibold text-ink">{tr(label)}</label>
       {children}
-      {hint && !error && <p className="mt-1 text-xs text-muted">{hint}</p>}
+      {hint && !error && <p className="mt-1 text-xs text-muted">{tr(hint)}</p>}
       <AnimatePresence initial={false}>
-        {error && <motion.p key={error} role="alert" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="mt-1 text-xs font-medium text-danger">{error}</motion.p>}
+        {error && <motion.p key={error} role="alert" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="mt-1 text-xs font-medium text-danger">{tr(error)}</motion.p>}
       </AnimatePresence>
     </div>
   );

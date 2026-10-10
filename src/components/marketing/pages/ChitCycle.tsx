@@ -5,21 +5,23 @@ import { ChevronLeft, ChevronRight, Coins, Gavel, Gift, HandCoins, Pause, Play, 
 import { computeBreakdown } from "@/lib/chit";
 import { formatINR } from "@/lib/money";
 import { ILLUSTRATIVE_DISCOUNT_BPS, showcaseScheme } from "../constants";
+import { useTr } from "@/i18n/LanguageProvider";
 
 const icons = [Users, Coins, Gavel, HandCoins, Gift, Repeat];
 
 /** Animated six-stage month cycle with play / pause / prev / next. All figures use the illustrative sample scheme. */
 export function ChitCycle() {
+  const tr = useTr();
   const r = showcaseScheme.rules;
   const b = useMemo(() => computeBreakdown(r, ILLUSTRATIVE_DISCOUNT_BPS), [r]);
   const stages = useMemo(() => [
-    { t: "Members contribute", s: "Every ticket pays its monthly instalment.", d: `In the sample, ${r.tickets} tickets each pay ${formatINR(r.instalment)}.` },
-    { t: "The monthly pot forms", s: "All instalments together make the gross chit.", d: `${r.tickets} × ${formatINR(r.instalment)} = ${formatINR(b.gross)} gross chit for the month.` },
-    { t: "The auction", s: "Eligible members offer how much of the pot they would give up.", d: `A sample ${ILLUSTRATIVE_DISCOUNT_BPS / 100}% discount is ${formatINR(b.discount)}. Real rules come from the approved agreement.` },
-    { t: "The winner receives the net chit", s: "Gross chit minus the winning discount, subject to payout conditions.", d: `${formatINR(b.gross)} − ${formatINR(b.discount)} = ${formatINR(b.netChit)} net chit (sample).` },
-    { t: "The dividend is shared", s: "Discount minus the foreman commission goes back to members.", d: `${formatINR(b.discount)} − ${formatINR(b.commission)} = ${formatINR(b.distributable)}, about ${formatINR(b.dividendPerTicket)} per ticket (sample).` },
-    { t: "The next month begins", s: "The winner keeps paying; the cycle repeats until every ticket has had its turn.", d: `In the sample the scheme runs for ${r.instalments} monthly instalments.` },
-  ], [r, b]);
+    { t: tr("Members contribute"), s: tr("Every ticket pays its monthly instalment."), d: tr("In the sample, {n} tickets each pay {amt}.", { n: r.tickets, amt: formatINR(r.instalment) }) },
+    { t: tr("The monthly pot forms"), s: tr("All instalments together make the gross chit."), d: tr("{n} × {inst} = {gross} gross chit for the month.", { n: r.tickets, inst: formatINR(r.instalment), gross: formatINR(b.gross) }) },
+    { t: tr("The auction"), s: tr("Eligible members offer how much of the pot they would give up."), d: tr("A sample {pct}% discount is {amt}. Real rules come from the approved agreement.", { pct: ILLUSTRATIVE_DISCOUNT_BPS / 100, amt: formatINR(b.discount) }) },
+    { t: tr("The winner receives the net chit"), s: tr("Gross chit minus the winning discount, subject to payout conditions."), d: tr("{gross} − {disc} = {net} net chit (sample).", { gross: formatINR(b.gross), disc: formatINR(b.discount), net: formatINR(b.netChit) }) },
+    { t: tr("The dividend is shared"), s: tr("Discount minus the foreman commission goes back to members."), d: tr("{disc} − {comm} = {pool}, about {per} per ticket (sample).", { disc: formatINR(b.discount), comm: formatINR(b.commission), pool: formatINR(b.distributable), per: formatINR(b.dividendPerTicket) }) },
+    { t: tr("The next month begins"), s: tr("The winner keeps paying; the cycle repeats until every ticket has had its turn."), d: tr("In the sample the scheme runs for {n} monthly instalments.", { n: r.instalments }) },
+  ], [r, b, tr]);
   const N = stages.length;
 
   const wrap = useRef<HTMLDivElement>(null);
@@ -51,7 +53,7 @@ export function ChitCycle() {
       ref={wrap}
       role="group"
       aria-roledescription="carousel"
-      aria-label="The monthly chit cycle. Use arrow keys to step, space to pause."
+      aria-label={tr("The monthly chit cycle. Use arrow keys to step, space to pause.")}
       tabIndex={0}
       onKeyDown={onKey}
       onPointerEnter={() => setHold(true)}
@@ -77,7 +79,7 @@ export function ChitCycle() {
               key={s.t}
               type="button"
               onClick={() => go(i)}
-              aria-label={`Stage ${i + 1} of ${N}: ${s.t}`}
+              aria-label={tr("Stage {n} of {total}: {title}", { n: i + 1, total: N, title: s.t })}
               aria-current={on ? "step" : undefined}
               style={{ left: `${p.x}%`, top: `${p.y}%` }}
               className="absolute grid h-[17%] w-[17%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full outline-none focus-visible:ring-4 focus-visible:ring-gold/60"
@@ -96,14 +98,14 @@ export function ChitCycle() {
           <AnimatePresence mode="wait">
             <motion.div key={step} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }} transition={{ duration: 0.25 }}>
               <p className="font-serif text-5xl italic text-gold sm:text-6xl">{step + 1}</p>
-              <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-ivory/60">of {N}</p>
+              <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-ivory/60">{tr("of {n}", { n: N })}</p>
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
 
       <div className="min-w-0">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold">The chit cycle · illustrative</p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold">{tr("The chit cycle · illustrative")}</p>
         <div aria-live={playing ? "off" : "polite"} className="mt-3 min-h-[11rem]">
           <AnimatePresence mode="wait">
             <motion.div key={step} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
@@ -114,16 +116,16 @@ export function ChitCycle() {
           </AnimatePresence>
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-2">
-          <button type="button" onClick={() => setTick((t) => t - 1)} aria-label="Previous stage" className="grid h-11 w-11 place-items-center rounded-full border border-ivory/20 transition hover:border-gold hover:text-gold active:scale-90"><ChevronLeft className="h-5 w-5" /></button>
-          <button type="button" onClick={() => setPaused((p) => !p)} aria-pressed={!playing} aria-label={playing ? "Pause automatic stepping" : "Play automatic stepping"} className="inline-flex h-11 items-center gap-2 rounded-full bg-gold px-5 text-sm font-bold text-navy transition hover:bg-gold-soft active:scale-95">
-            {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}{playing ? "Pause" : "Play"}
+          <button type="button" onClick={() => setTick((t) => t - 1)} aria-label={tr("Previous stage")} className="grid h-11 w-11 place-items-center rounded-full border border-ivory/20 transition hover:border-gold hover:text-gold active:scale-90"><ChevronLeft className="h-5 w-5" /></button>
+          <button type="button" onClick={() => setPaused((p) => !p)} aria-pressed={!playing} aria-label={playing ? tr("Pause automatic stepping") : tr("Play automatic stepping")} className="inline-flex h-11 items-center gap-2 rounded-full bg-gold px-5 text-sm font-bold text-navy transition hover:bg-gold-soft active:scale-95">
+            {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}{playing ? tr("Pause") : tr("Play")}
           </button>
-          <button type="button" onClick={() => setTick((t) => t + 1)} aria-label="Next stage" className="grid h-11 w-11 place-items-center rounded-full border border-ivory/20 transition hover:border-gold hover:text-gold active:scale-90"><ChevronRight className="h-5 w-5" /></button>
+          <button type="button" onClick={() => setTick((t) => t + 1)} aria-label={tr("Next stage")} className="grid h-11 w-11 place-items-center rounded-full border border-ivory/20 transition hover:border-gold hover:text-gold active:scale-90"><ChevronRight className="h-5 w-5" /></button>
           <ol className="ml-auto flex gap-1.5" aria-hidden>
             {stages.map((s, i) => <li key={s.t} className={`h-1.5 rounded-full transition-all duration-300 ${i === step ? "w-6 bg-gold" : "w-1.5 bg-ivory/25"}`} />)}
           </ol>
         </div>
-        <p className="mt-4 text-xs text-ivory/50">Sample scheme and sample discount only — not an offer, quote or real auction result.</p>
+        <p className="mt-4 text-xs text-ivory/50">{tr("Sample scheme and sample discount only — not an offer, quote or real auction result.")}</p>
       </div>
     </div>
   );

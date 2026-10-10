@@ -6,13 +6,16 @@ import { useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, Plug } from "lucide-react";
 import { schemes } from "@/data/demo";
 import type { VerificationStatus } from "@/data/types";
-import { formatINR, formatLakh } from "@/lib/money";
+import { formatINR } from "@/lib/money";
 import { cn } from "@/lib/cn";
-import { StatusBadge } from "@/components/ui/Badge";
+import { StatusChip } from "../pages/StatusChip";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { TextField, SelectField } from "@/components/ui/fields";
 import { DemoNote } from "@/components/ui/misc";
 import { emailSchema, mobileSchema } from "../validation";
+import { useLakh } from "../pages/useLakh";
+import { RichT } from "../pages/RichT";
+import { useTr } from "@/i18n/LanguageProvider";
 
 interface Profile { name: string; mobile: string; email: string; city: string }
 interface Nominee { name: string; relationship: string }
@@ -50,20 +53,24 @@ const checklist = [
 ];
 
 function PopBadge({ status, delay = 0 }: { status: string; delay?: number }) {
-  return <motion.span className="inline-flex" initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", stiffness: 420, damping: 20, delay }}><StatusBadge status={status} /></motion.span>;
+  return <motion.span className="inline-flex" initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", stiffness: 420, damping: 20, delay }}><StatusChip status={status} /></motion.span>;
 }
 
 function VerifyCard({ title, status, text }: { title: string; status: VerificationStatus; text: string }) {
+  const tr = useTr();
   return (
     <div className="rounded-2xl border border-line bg-ivory p-5">
-      <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-bold text-emerald">{title}</h3><PopBadge status={status} delay={0.15} /></div>
-      <p className="mt-2 text-sm text-muted">{text}</p>
-      <p className="mt-3 flex items-start gap-2 rounded-md border border-dashed border-gold-antique/60 bg-gold/10 p-3 text-sm text-ink"><Plug className="mt-0.5 h-4 w-4 shrink-0" aria-hidden /><span><strong>Integration required.</strong> A verified service must be connected before this step can run. This demo does not collect or check any identity or bank documents.</span></p>
+      <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-bold text-emerald">{tr(title)}</h3><PopBadge status={status} delay={0.15} /></div>
+      <p className="mt-2 text-sm text-muted">{tr(text)}</p>
+      <p className="mt-3 flex items-start gap-2 rounded-md border border-dashed border-gold-antique/60 bg-gold/10 p-3 text-sm text-ink"><Plug className="mt-0.5 h-4 w-4 shrink-0" aria-hidden /><span><RichT text="<b>Integration required.</b> A verified service must be connected before this step can run. This demo does not collect or check any identity or bank documents." bold="font-bold" /></span></p>
     </div>
   );
 }
 
 export function RegisterWizard() {
+  const tr = useTr();
+  const lakh = useLakh();
+  const msg = (m?: string) => (m ? tr(m) : undefined);
   const params = useSearchParams();
   const requested = params.get("scheme");
   const active = useMemo(() => schemes.filter((s) => s.status === "Active"), []);
@@ -100,25 +107,25 @@ export function RegisterWizard() {
 
   return (
     <div className="mx-auto w-full max-w-2xl">
-      <h1 className="text-4xl font-extrabold text-emerald">Start <span className="font-serif font-normal italic text-gold-antique">onboarding</span></h1>
-      <p className="mt-2 text-sm text-muted">A demo walkthrough of the steps involved. Nothing is submitted, stored or signed.</p>
+      <h1 className="text-4xl font-extrabold text-emerald"><RichT text="Start <i>onboarding</i>" /></h1>
+      <p className="mt-2 text-sm text-muted">{tr("A demo walkthrough of the steps involved. Nothing is submitted, stored or signed.")}</p>
 
-      <nav aria-label="Progress" className="mt-6">
+      <nav aria-label={tr("Progress")} className="mt-6">
         <div className="flex items-baseline justify-between gap-3">
-          <p className="text-sm font-semibold text-ink">Step {i + 1} of {steps.length}</p>
-          <p className="truncate text-sm font-semibold text-gold-antique">{steps[i].title}</p>
+          <p className="text-sm font-semibold text-ink">{tr("Step {n} of {total}", { n: i + 1, total: steps.length })}</p>
+          <p className="truncate text-sm font-semibold text-gold-antique">{tr(steps[i].title)}</p>
         </div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={i + 1} aria-label="Onboarding progress"><motion.div className="h-full origin-left rounded-full bg-gradient-to-r from-emerald to-gold" initial={false} animate={{ scaleX: (i + 1) / steps.length }} transition={{ type: "spring", stiffness: 120, damping: 22 }} /></div>
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={i + 1} aria-label={tr("Onboarding progress")}><motion.div className="h-full origin-left rounded-full bg-gradient-to-r from-emerald to-gold" initial={false} animate={{ scaleX: (i + 1) / steps.length }} transition={{ type: "spring", stiffness: 120, damping: 22 }} /></div>
         <ol className="mt-4 flex items-center justify-between">
           {steps.map((s, n) => (
             <li key={s.title} aria-current={n === i ? "step" : undefined} className="relative flex flex-1 items-center last:flex-none">
               <motion.span
-                title={s.title}
+                title={tr(s.title)}
                 animate={{ scale: n === i ? 1.15 : 1 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 className={cn("grid h-7 w-7 shrink-0 place-items-center rounded-full text-[11px] font-bold transition-colors duration-300", n === i ? "bg-gold text-navy shadow-[0_0_0_4px] shadow-gold/25" : n < i ? "bg-emerald text-ivory" : "bg-line text-muted")}
               >
-                <span className="sr-only">{n < i ? "Completed: " : n === i ? "Current: " : "Upcoming: "}{s.title}</span>
+                <span className="sr-only">{tr(n < i ? "Completed: " : n === i ? "Current: " : "Upcoming: ")}{tr(s.title)}</span>
                 {n < i ? <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500, damping: 18 }}><Check className="h-3.5 w-3.5" strokeWidth={3.5} aria-hidden /></motion.span> : <span aria-hidden>{n + 1}</span>}
               </motion.span>
               {n < steps.length - 1 && <span aria-hidden className="mx-1 h-0.5 flex-1 overflow-hidden rounded-full bg-line"><motion.span className="block h-full origin-left bg-emerald" initial={false} animate={{ scaleX: n < i ? 1 : 0 }} transition={{ duration: 0.4 }} /></span>}
@@ -136,54 +143,54 @@ export function RegisterWizard() {
           initial="enter" animate="center" exit="exit"
           transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
         >
-        <h2 ref={headingRef} tabIndex={-1} className="text-xl font-bold text-emerald outline-none">{steps[i].title}</h2>
-        <p className="mt-2 rounded-xl bg-emerald-50 p-3 text-sm text-ink"><span className="font-semibold">Why this step: </span>{steps[i].why}</p>
+        <h2 ref={headingRef} tabIndex={-1} className="text-xl font-bold text-emerald outline-none">{tr(steps[i].title)}</h2>
+        <p className="mt-2 rounded-xl bg-emerald-50 p-3 text-sm text-ink"><span className="font-semibold">{tr("Why this step: ")}</span>{tr(steps[i].why)}</p>
         <div className="mt-5 space-y-4">
           {i === 0 && (
             <>
-              <TextField label="Full name" autoComplete="name" value={profile.name} onChange={setP("name")} error={errors.name} />
-              <TextField label="Mobile number" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={profile.mobile} onChange={setP("mobile")} error={errors.mobile} />
-              <TextField label="Email" type="email" autoComplete="email" value={profile.email} onChange={setP("email")} error={errors.email} />
-              <TextField label="City or town" autoComplete="address-level2" value={profile.city} onChange={setP("city")} error={errors.city} />
-              <p className="text-xs text-muted">Please do not enter PAN, Aadhaar or any password. They are never requested here.</p>
+              <TextField label={tr("Full name")} autoComplete="name" value={profile.name} onChange={setP("name")} error={msg(errors.name)} />
+              <TextField label={tr("Mobile number")} inputMode="numeric" autoComplete="tel-national" maxLength={10} value={profile.mobile} onChange={setP("mobile")} error={msg(errors.mobile)} />
+              <TextField label={tr("Email")} type="email" autoComplete="email" value={profile.email} onChange={setP("email")} error={msg(errors.email)} />
+              <TextField label={tr("City or town")} autoComplete="address-level2" value={profile.city} onChange={setP("city")} error={msg(errors.city)} />
+              <p className="text-xs text-muted">{tr("Please do not enter PAN, Aadhaar or any password. They are never requested here.")}</p>
             </>
           )}
           {i === 1 && (
             <>
               <VerifyCard title="KYC status" status="Not started" text="Identity verification will be completed through a verified service. You will be guided through it, and you will see your status here." />
               <div>
-                <h3 className="text-sm font-bold text-ink">What each status means</h3>
-                <ul className="mt-2 space-y-2">{statusInfo.map(([s, d], k) => <motion.li key={s} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + k * 0.05 }} className="flex flex-wrap items-center gap-2 text-sm"><PopBadge status={s} delay={0.1 + k * 0.05} /><span className="text-muted">{d}</span></motion.li>)}</ul>
+                <h3 className="text-sm font-bold text-ink">{tr("What each status means")}</h3>
+                <ul className="mt-2 space-y-2">{statusInfo.map(([s, d], k) => <motion.li key={s} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + k * 0.05 }} className="flex flex-wrap items-center gap-2 text-sm"><PopBadge status={s} delay={0.1 + k * 0.05} /><span className="text-muted">{tr(d)}</span></motion.li>)}</ul>
               </div>
             </>
           )}
           {i === 2 && <VerifyCard title="Bank verification status" status="Not started" text="Bank account verification will be completed through a verified service. The same statuses as KYC apply." />}
           {i === 3 && (
             <>
-              <TextField label="Nominee name (optional)" value={nominee.name} onChange={(e) => setNominee((n) => ({ ...n, name: e.target.value }))} error={errors.nomineeName} />
-              <SelectField label="Relationship (required if a nominee is named)" value={nominee.relationship} onChange={(e) => setNominee((n) => ({ ...n, relationship: e.target.value }))} error={errors.relationship}>
-                <option value="">Select relationship</option>
-                {["Spouse", "Parent", "Child", "Sibling", "Other family member", "Other"].map((r) => <option key={r}>{r}</option>)}
+              <TextField label={tr("Nominee name (optional)")} value={nominee.name} onChange={(e) => setNominee((n) => ({ ...n, name: e.target.value }))} error={msg(errors.nomineeName)} />
+              <SelectField label={tr("Relationship (required if a nominee is named)")} value={nominee.relationship} onChange={(e) => setNominee((n) => ({ ...n, relationship: e.target.value }))} error={msg(errors.relationship)}>
+                <option value="">{tr("Select relationship")}</option>
+                {["Spouse", "Parent", "Child", "Sibling", "Other family member", "Other"].map((r) => <option key={r} value={r}>{tr(r)}</option>)}
               </SelectField>
-              <p className="text-xs text-muted">Nomination rules will be defined by the approved scheme agreement.</p>
+              <p className="text-xs text-muted">{tr("Nomination rules will be defined by the approved scheme agreement.")}</p>
             </>
           )}
           {i === 4 && (
             <fieldset>
-              <legend className="mb-2 text-sm font-semibold text-ink">Tick what you have ready (for your own reference)</legend>
+              <legend className="mb-2 text-sm font-semibold text-ink">{tr("Tick what you have ready (for your own reference)")}</legend>
               <ul className="space-y-1">
                 {checklist.map((c) => (
-                  <li key={c}><label className="flex min-h-11 items-start gap-3 text-sm"><input type="checkbox" checked={!!docs[c]} onChange={(e) => setDocs((d) => ({ ...d, [c]: e.target.checked }))} className="mt-0.5 h-5 w-5 accent-emerald" />{c}</label></li>
+                  <li key={c}><label className="flex min-h-11 items-start gap-3 text-sm"><input type="checkbox" checked={!!docs[c]} onChange={(e) => setDocs((d) => ({ ...d, [c]: e.target.checked }))} className="mt-0.5 h-5 w-5 accent-emerald" />{tr(c)}</label></li>
                 ))}
               </ul>
-              <p className="mt-3 text-xs text-muted">The exact list will depend on the scheme and verification requirements. No uploads happen in this demo.</p>
+              <p className="mt-3 text-xs text-muted">{tr("The exact list will depend on the scheme and verification requirements. No uploads happen in this demo.")}</p>
             </fieldset>
           )}
           {i === 5 && (
             <fieldset>
-              <legend className="sr-only">Choose a scheme</legend>
-              {requestedScheme && requestedScheme.status !== "Active" && <p role="alert" className="mb-3 rounded-md bg-warning/10 p-3 text-sm">{requestedScheme.name} is {requestedScheme.status} and cannot be joined. Only active schemes can be selected.</p>}
-              <DemoNote>Illustrative demo schemes only.</DemoNote>
+              <legend className="sr-only">{tr("Choose a scheme")}</legend>
+              {requestedScheme && requestedScheme.status !== "Active" && <p role="alert" className="mb-3 rounded-md bg-warning/10 p-3 text-sm">{tr("{name} is {status} and cannot be joined. Only active schemes can be selected.", { name: tr(requestedScheme.name), status: tr(requestedScheme.status) })}</p>}
+              <DemoNote>{tr("Illustrative demo schemes only.")}</DemoNote>
               <ul className="mt-3 space-y-3">
                 {schemes.map((s) => {
                   const ok = s.status === "Active";
@@ -192,56 +199,56 @@ export function RegisterWizard() {
                       <label className={cn("flex min-h-11 items-start gap-3 rounded-lg border p-4", ok ? "cursor-pointer" : "cursor-not-allowed bg-ivory opacity-80", schemeId === s.id ? "border-emerald bg-emerald-50" : "border-line")}>
                         <input type="radio" name="scheme" disabled={!ok} checked={schemeId === s.id} onChange={() => setSchemeId(s.id)} className="mt-1 h-5 w-5 accent-emerald" />
                         <span className="text-sm">
-                          <span className="flex flex-wrap items-center gap-2 font-semibold text-ink">{s.name} <StatusBadge status={s.status} /></span>
-                          <span className="mt-1 block text-muted">{formatLakh(s.rules.grossChit)} · {formatINR(s.rules.instalment)}/month · {s.rules.instalments} months</span>
-                          {!ok && <span className="mt-1 block text-muted">Not selectable: this scheme is {s.status.toLowerCase()} and has not commenced.</span>}
+                          <span className="flex flex-wrap items-center gap-2 font-semibold text-ink">{tr(s.name)} <StatusChip status={s.status} /></span>
+                          <span className="mt-1 block text-muted">{lakh(s.rules.grossChit)} · {tr("{amt}/month · {n} months", { amt: formatINR(s.rules.instalment), n: s.rules.instalments })}</span>
+                          {!ok && <span className="mt-1 block text-muted">{tr("Not selectable: this scheme is {status} and has not commenced.", { status: tr(s.status).toLowerCase() })}</span>}
                         </span>
                       </label>
                     </li>
                   );
                 })}
               </ul>
-              {active.length === 0 && <p className="mt-3 text-sm text-muted">No scheme is active right now.</p>}
-              {errors.scheme && <p role="alert" className="mt-2 text-xs font-medium text-danger">{errors.scheme}</p>}
+              {active.length === 0 && <p className="mt-3 text-sm text-muted">{tr("No scheme is active right now.")}</p>}
+              {errors.scheme && <p role="alert" className="mt-2 text-xs font-medium text-danger">{tr(errors.scheme)}</p>}
             </fieldset>
           )}
           {i === 6 && (
             <>
               <div className="rounded-md border border-dashed border-gold-antique/60 bg-gold/10 p-4 text-sm">
-                <p className="font-semibold text-ink">Pending legal approval — to be supplied</p>
-                <p className="mt-1 text-muted">The scheme agreement{chosen ? ` for ${chosen.name}` : ""} has not been approved or published, so there is nothing to read or accept yet. No terms are stated here.</p>
+                <p className="font-semibold text-ink">{tr("Pending legal approval — to be supplied")}</p>
+                <p className="mt-1 text-muted">{chosen ? tr("The scheme agreement for {name} has not been approved or published, so there is nothing to read or accept yet. No terms are stated here.", { name: tr(chosen.name) }) : tr("The scheme agreement has not been approved or published, so there is nothing to read or accept yet. No terms are stated here.")}</p>
               </div>
-              <label className="flex min-h-11 items-start gap-3 text-sm text-muted"><input type="checkbox" disabled className="mt-0.5 h-5 w-5" />I have read and understood the scheme agreement</label>
-              <p className="text-xs text-muted">This confirmation is disabled because there is no real agreement document to review. It becomes available once an approved agreement is provided.</p>
+              <label className="flex min-h-11 items-start gap-3 text-sm text-muted"><input type="checkbox" disabled className="mt-0.5 h-5 w-5" />{tr("I have read and understood the scheme agreement")}</label>
+              <p className="text-xs text-muted">{tr("This confirmation is disabled because there is no real agreement document to review. It becomes available once an approved agreement is provided.")}</p>
             </>
           )}
           {i === 7 && (
             <>
-              <Button disabled className="w-full sm:w-auto">E-signature integration pending</Button>
-              <p className="text-sm text-muted">Signing requires an approved agreement and a compliant e-signature service. This demo never simulates a legal signature.</p>
+              <Button disabled className="w-full sm:w-auto">{tr("E-signature integration pending")}</Button>
+              <p className="text-sm text-muted">{tr("Signing requires an approved agreement and a compliant e-signature service. This demo never simulates a legal signature.")}</p>
             </>
           )}
           {i === 8 && (
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-3"><PopBadge status="Under review" /><span className="text-sm font-semibold text-ink">Under review (demo)</span></div>
+              <div className="flex flex-wrap items-center gap-3"><PopBadge status="Under review" /><span className="text-sm font-semibold text-ink">{tr("Under review (demo)")}</span></div>
               <dl className="grid gap-3 text-sm sm:grid-cols-2">
-                <div><dt className="text-xs uppercase tracking-wider text-muted">Name</dt><dd className="font-semibold">{profile.name}</dd></div>
-                <div><dt className="text-xs uppercase tracking-wider text-muted">Mobile</dt><dd className="font-semibold">{"XXXXXX" + profile.mobile.slice(-4)}</dd></div>
-                <div><dt className="text-xs uppercase tracking-wider text-muted">City</dt><dd className="font-semibold">{profile.city}</dd></div>
-                <div><dt className="text-xs uppercase tracking-wider text-muted">Scheme</dt><dd className="font-semibold">{chosen?.name ?? "-"}</dd></div>
-                <div><dt className="text-xs uppercase tracking-wider text-muted">KYC / Bank</dt><dd className="font-semibold">Integration required</dd></div>
-                <div><dt className="text-xs uppercase tracking-wider text-muted">Agreement / Signature</dt><dd className="font-semibold">Pending</dd></div>
+                <div><dt className="text-xs uppercase tracking-wider text-muted">{tr("Name")}</dt><dd className="font-semibold">{profile.name}</dd></div>
+                <div><dt className="text-xs uppercase tracking-wider text-muted">{tr("Mobile")}</dt><dd className="font-semibold">{"XXXXXX" + profile.mobile.slice(-4)}</dd></div>
+                <div><dt className="text-xs uppercase tracking-wider text-muted">{tr("City")}</dt><dd className="font-semibold">{profile.city}</dd></div>
+                <div><dt className="text-xs uppercase tracking-wider text-muted">{tr("Scheme")}</dt><dd className="font-semibold">{chosen ? tr(chosen.name) : "-"}</dd></div>
+                <div><dt className="text-xs uppercase tracking-wider text-muted">{tr("KYC / Bank")}</dt><dd className="font-semibold">{tr("Integration required")}</dd></div>
+                <div><dt className="text-xs uppercase tracking-wider text-muted">{tr("Agreement / Signature")}</dt><dd className="font-semibold">{tr("Pending")}</dd></div>
               </dl>
-              <p className="rounded-md bg-ivory p-3 text-sm text-muted">This is a demo summary. No application has been submitted, no data has been stored, and nothing here is an approval. A real application would remain pending until verification, agreement and signature steps are completed.</p>
-              <div className="flex flex-wrap gap-3"><Link href="/" className={buttonClass("secondary")}>Return home</Link><Link href="/chit-plans" className={buttonClass("ghost")}>Explore plans</Link></div>
+              <p className="rounded-md bg-ivory p-3 text-sm text-muted">{tr("This is a demo summary. No application has been submitted, no data has been stored, and nothing here is an approval. A real application would remain pending until verification, agreement and signature steps are completed.")}</p>
+              <div className="flex flex-wrap gap-3"><Link href="/" className={buttonClass("secondary")}>{tr("Return home")}</Link><Link href="/chit-plans" className={buttonClass("ghost")}>{tr("Explore plans")}</Link></div>
             </div>
           )}
         </div>
         </motion.div>
        </AnimatePresence>
         <div className="mt-8 flex items-center justify-between gap-3 border-t border-line pt-5">
-          <Button variant="ghost" onClick={back} disabled={i === 0}><ArrowLeft className="h-4 w-4" />Back</Button>
-          {i < steps.length - 1 && <Button onClick={next} className="transition-transform active:scale-[0.97]">{i === 7 ? "Continue" : "Next"}<ArrowRight className="h-4 w-4" /></Button>}
+          <Button variant="ghost" onClick={back} disabled={i === 0}><ArrowLeft className="h-4 w-4" />{tr("Back")}</Button>
+          {i < steps.length - 1 && <Button onClick={next} className="transition-transform active:scale-[0.97]">{i === 7 ? tr("Continue") : tr("Next")}<ArrowRight className="h-4 w-4" /></Button>}
         </div>
       </div>
     </div>

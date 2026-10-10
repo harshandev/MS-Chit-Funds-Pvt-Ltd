@@ -12,6 +12,8 @@ import { Spotlight } from "@/components/motion/Spotlight";
 import { Tilt } from "@/components/motion/Tilt";
 import { AnimatedNumber } from "@/components/motion/CountUp";
 import { SchemeCard } from "./SchemeCard";
+import { useTr } from "@/i18n/LanguageProvider";
+import { RichT } from "./pages/RichT";
 
 type Sort = "default" | "value-asc" | "value-desc" | "inst-asc" | "inst-desc" | "dur-asc" | "dur-desc";
 interface Filters { q: string; value: string; inst: string; dur: string; status: string; sort: Sort }
@@ -59,9 +61,10 @@ function sortSchemes(list: Scheme[], sort: Sort): Scheme[] {
 
 /** Animated single-select chip group (radio semantics). */
 function ChipGroup({ legend, uid, value, onChange, options }: { legend: string; uid: string; value: string; onChange: (v: string) => void; options: [string, string][] }) {
+  const tr = useTr();
   return (
     <fieldset className="min-w-0">
-      <legend className="mb-2 text-xs font-bold uppercase tracking-wider text-muted">{legend}</legend>
+      <legend className="mb-2 text-xs font-bold uppercase tracking-wider text-muted">{tr(legend)}</legend>
       <div className="flex flex-wrap gap-2">
         {options.map(([k, label]) => {
           const on = value === k;
@@ -69,7 +72,7 @@ function ChipGroup({ legend, uid, value, onChange, options }: { legend: string; 
             <label key={k} className={cn("relative inline-flex min-h-10 cursor-pointer items-center rounded-full px-3.5 text-sm font-semibold ring-1 transition-colors focus-within:ring-4 focus-within:ring-gold/40", on ? "text-ivory ring-emerald" : "bg-white text-ink ring-line hover:text-emerald hover:ring-gold-antique")}>
               <input type="radio" name={uid} value={k} checked={on} onChange={() => onChange(k)} className="sr-only" />
               {on && <motion.span layoutId={`chip-${uid}`} aria-hidden className="absolute inset-0 rounded-full bg-emerald" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
-              <span className="relative">{label}</span>
+              <span className="relative">{tr(label)}</span>
             </label>
           );
         })}
@@ -84,6 +87,7 @@ export function PlansExplorer() {
   const [f, setF] = useState<Filters>(initial);
   const [view, setView] = useState<"card" | "list">("card");
   const reduce = useReducedMotion();
+  const tr = useTr();
 
   useEffect(() => {
     let live = true;
@@ -98,34 +102,34 @@ export function PlansExplorer() {
     if (!schemes) return [];
     const q = f.q.trim().toLowerCase();
     const filtered = schemes.filter((s) =>
-      (!q || `${s.name} ${s.summary} ${s.status}`.toLowerCase().includes(q)) &&
+      (!q || `${s.name} ${s.summary} ${s.status} ${tr(s.name)} ${tr(s.summary)} ${tr(s.status)}`.toLowerCase().includes(q)) &&
       valueBands[f.value].test(s.rules.grossChit) &&
       instBands[f.inst].test(s.rules.instalment) &&
       durBands[f.dur].test(s.rules.instalments) &&
       (f.status === "all" || s.status === f.status));
     return sortSchemes(filtered, f.sort);
-  }, [schemes, f]);
+  }, [schemes, f, tr]);
 
   const dirty = JSON.stringify(f) !== JSON.stringify(initial);
   const activeCount = [f.q.trim() && 1, f.value !== "all" && 1, f.inst !== "all" && 1, f.dur !== "all" && 1, f.status !== "all" && 1].filter(Boolean).length;
 
-  if (failed) return <ErrorState title="Could not load schemes" text="Please try again." action={<Button onClick={() => window.location.reload()}>Reload</Button>} />;
+  if (failed) return <ErrorState title={tr("Could not load schemes")} text={tr("Please try again.")} action={<Button onClick={() => window.location.reload()}>{tr("Reload")}</Button>} />;
 
   const opt = (m: Record<string, { label: string }>): [string, string][] => Object.entries(m).map(([k, b]) => [k, b.label]);
 
   return (
     <div>
-      <form role="search" aria-label="Filter chit plans" onSubmit={(e) => e.preventDefault()} className="rounded-2xl border border-line/80 bg-white p-4 shadow-[var(--shadow-2)] sm:p-6">
+      <form role="search" aria-label={tr("Filter chit plans")} onSubmit={(e) => e.preventDefault()} className="rounded-2xl border border-line/80 bg-white p-4 shadow-[var(--shadow-2)] sm:p-6">
         <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
           <label className="relative block">
-            <span className="sr-only">Search schemes</span>
+            <span className="sr-only">{tr("Search schemes")}</span>
             <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
-            <input type="search" value={f.q} onChange={(e) => set("q", e.target.value)} placeholder="Search by name, amount or status" className="min-h-12 w-full rounded-xl border border-line bg-ivory/60 pl-10 pr-3 text-sm transition focus:border-emerald focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald/10" />
+            <input type="search" value={f.q} onChange={(e) => set("q", e.target.value)} placeholder={tr("Search by name, amount or status")} className="min-h-12 w-full rounded-xl border border-line bg-ivory/60 pl-10 pr-3 text-sm transition focus:border-emerald focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald/10" />
           </label>
           <label className="relative block">
-            <span className="sr-only">Sort by</span>
+            <span className="sr-only">{tr("Sort by")}</span>
             <ArrowUpDown className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
-            <select value={f.sort} onChange={(e) => set("sort", e.target.value as Sort)} className="min-h-12 w-full appearance-none rounded-xl border border-line bg-ivory/60 pl-10 pr-8 text-sm font-semibold transition focus:border-emerald focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald/10 sm:w-64">{sorts.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}</select>
+            <select value={f.sort} onChange={(e) => set("sort", e.target.value as Sort)} className="min-h-12 w-full appearance-none rounded-xl border border-line bg-ivory/60 pl-10 pr-8 text-sm font-semibold transition focus:border-emerald focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald/10 sm:w-64">{sorts.map((s) => <option key={s.value} value={s.value}>{tr(s.label)}</option>)}</select>
           </label>
         </div>
         <LayoutGroup>
@@ -141,18 +145,18 @@ export function PlansExplorer() {
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <p role="status" aria-live="polite" className="text-sm font-semibold text-ink">
           {schemes ? (
-            <><span className="font-serif text-3xl italic text-emerald tabular-nums"><AnimatedNumber value={results.length} /></span> <span className="text-muted">of {schemes.length} schemes{activeCount > 0 ? ` · ${activeCount} filter${activeCount > 1 ? "s" : ""} on` : ""}</span></>
-          ) : "Loading schemes…"}
+            <><span className="font-serif text-3xl italic text-emerald tabular-nums"><AnimatedNumber value={results.length} /></span> <span className="text-muted">{tr("of {n} schemes", { n: schemes.length })}{activeCount > 0 ? ` · ${tr(activeCount > 1 ? "{n} filters on" : "{n} filter on", { n: activeCount })}` : ""}</span></>
+          ) : tr("Loading schemes…")}
         </p>
         <div className="flex items-center gap-2">
           <AnimatePresence>
             {dirty && (
-              <motion.button key="clr" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} onClick={() => setF(initial)} className="inline-flex min-h-11 items-center gap-1 rounded-full px-3 text-sm font-semibold text-emerald transition-colors hover:bg-emerald-50"><X className="h-4 w-4" />Clear filters</motion.button>
+              <motion.button key="clr" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} onClick={() => setF(initial)} className="inline-flex min-h-11 items-center gap-1 rounded-full px-3 text-sm font-semibold text-emerald transition-colors hover:bg-emerald-50"><X className="h-4 w-4" />{tr("Clear filters")}</motion.button>
             )}
           </AnimatePresence>
-          <div role="group" aria-label="Layout" className="relative inline-flex rounded-full border border-line bg-white p-1">
+          <div role="group" aria-label={tr("Layout")} className="relative inline-flex rounded-full border border-line bg-white p-1">
             {([["card", LayoutGrid, "Card view"], ["list", List, "List view"]] as const).map(([v, Icon, label]) => (
-              <button key={v} onClick={() => setView(v)} aria-pressed={view === v} aria-label={label} className={cn("relative inline-flex h-9 w-10 items-center justify-center rounded-full transition-colors", view === v ? "text-ivory" : "text-muted hover:text-emerald")}>
+              <button key={v} onClick={() => setView(v)} aria-pressed={view === v} aria-label={tr(label)} className={cn("relative inline-flex h-9 w-10 items-center justify-center rounded-full transition-colors", view === v ? "text-ivory" : "text-muted hover:text-emerald")}>
                 {view === v && <motion.span layoutId="view-pill" aria-hidden className="absolute inset-0 rounded-full bg-emerald" transition={{ type: "spring", stiffness: 420, damping: 32 }} />}
                 <Icon className="relative h-4 w-4" />
               </button>
@@ -163,15 +167,15 @@ export function PlansExplorer() {
 
       <div className="mt-5">
         {!schemes ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Loading schemes">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label={tr("Loading schemes")}>
             {[0, 1, 2].map((i) => <Skeleton key={i} className="h-80 w-full rounded-2xl" />)}
           </div>
         ) : results.length === 0 ? (
           <motion.div initial={reduce ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center rounded-3xl border border-dashed border-gold-antique/50 bg-white px-6 py-16 text-center">
             <motion.span animate={reduce ? undefined : { rotate: [0, -8, 8, -4, 0] }} transition={{ duration: 1.4, repeat: Infinity, repeatDelay: 2.2 }} className="grid h-20 w-20 place-items-center rounded-full bg-gold/15 ring-8 ring-gold/5"><SearchX className="h-9 w-9 text-gold-antique" /></motion.span>
-            <h3 className="mt-5 font-serif text-3xl text-emerald">No schemes <span className="italic text-gold-antique">match</span> these filters</h3>
-            <p className="mt-2 max-w-sm text-sm text-muted">Try widening your search or clearing a filter or two.</p>
-            <Button variant="secondary" className="mt-5" onClick={() => setF(initial)}>Clear filters</Button>
+            <h3 className="mt-5 font-serif text-3xl text-emerald"><RichT text="No schemes <i>match</i> these filters" accent="italic text-gold-antique" /></h3>
+            <p className="mt-2 max-w-sm text-sm text-muted">{tr("Try widening your search or clearing a filter or two.")}</p>
+            <Button variant="secondary" className="mt-5" onClick={() => setF(initial)}>{tr("Clear filters")}</Button>
           </motion.div>
         ) : (
           <motion.ul layout className={cn("grid gap-6", view === "card" ? "md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1")}>
@@ -187,7 +191,7 @@ export function PlansExplorer() {
           </motion.ul>
         )}
       </div>
-      <p className="mt-8 text-sm text-muted">All schemes shown are illustrative demo schemes. Participation, eligibility and commencement depend on approved scheme terms and regulatory requirements.</p>
+      <p className="mt-8 text-sm text-muted">{tr("All schemes shown are illustrative demo schemes. Participation, eligibility and commencement depend on approved scheme terms and regulatory requirements.")}</p>
     </div>
   );
 }

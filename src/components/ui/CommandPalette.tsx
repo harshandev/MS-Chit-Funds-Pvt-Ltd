@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { CornerDownLeft, Search, ArrowUp, ArrowDown, type LucideIcon } from "lucide-react";
 import { useEffect, useId, useMemo, useState, useSyncExternalStore, type KeyboardEvent } from "react";
 import { cn } from "@/lib/cn";
+import { useTr } from "@/i18n/LanguageProvider";
 
 export interface PaletteItem {
   id: string;
@@ -33,6 +34,7 @@ export function ShortcutHint({ className }: { className?: string }) {
 }
 
 function Body({ items, placeholder, accent, onDone }: { items: PaletteItem[]; placeholder: string; accent: "emerald" | "navy"; onDone: () => void }) {
+  const tr = useTr();
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
   const listId = useId();
@@ -65,13 +67,13 @@ function Body({ items, placeholder, accent, onDone }: { items: PaletteItem[]; pl
       <div className="flex items-center gap-3 border-b border-line px-4">
         <Search className={cn("h-5 w-5 shrink-0", act)} aria-hidden />
         <input
-          autoFocus role="combobox" aria-expanded aria-controls={listId} aria-autocomplete="list" aria-activedescendant={cur ? optId(cur) : undefined} aria-label="Search pages and actions"
+          autoFocus role="combobox" aria-expanded aria-controls={listId} aria-autocomplete="list" aria-activedescendant={cur ? optId(cur) : undefined} aria-label={tr("Search pages and actions")}
           value={q} onChange={(e) => { setQ(e.target.value); setActive(0); }} onKeyDown={onKey} placeholder={placeholder}
           className="min-h-14 w-full bg-transparent text-base text-ink placeholder:text-muted/70 focus-visible:outline-none!"
         />
         <kbd className="hidden rounded-md border border-line px-1.5 py-0.5 text-[10px] font-semibold text-muted sm:block">Esc</kbd>
       </div>
-      <ul id={listId} role="listbox" aria-label="Results" className="max-h-[min(60dvh,24rem)] overflow-y-auto overscroll-contain p-2">
+      <ul id={listId} role="listbox" aria-label={tr("Results")} className="max-h-[min(60dvh,24rem)] overflow-y-auto overscroll-contain p-2">
         {groups.map((g) => (
           <li key={g.name} role="presentation" className="mb-1">
             <p role="presentation" className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted">{g.name}</p>
@@ -93,23 +95,26 @@ function Body({ items, placeholder, accent, onDone }: { items: PaletteItem[]; pl
             </ul>
           </li>
         ))}
-        {filtered.length === 0 && <li role="presentation" className="px-3 py-10 text-center text-sm text-muted">No pages or actions match “{q}”.</li>}
+        {filtered.length === 0 && <li role="presentation" className="px-3 py-10 text-center text-sm text-muted">{tr("No pages or actions match “{q}”.", { q })}</li>}
       </ul>
-      <p className="sr-only" role="status" aria-live="polite">{filtered.length} result{filtered.length === 1 ? "" : "s"}</p>
+      <p className="sr-only" role="status" aria-live="polite">{tr(filtered.length === 1 ? "{n} result" : "{n} results", { n: filtered.length })}</p>
       <div className="hidden items-center gap-4 border-t border-line bg-ivory/60 px-4 py-2 text-[11px] text-muted sm:flex">
-        <span className="inline-flex items-center gap-1"><ArrowUp className="h-3 w-3" /><ArrowDown className="h-3 w-3" aria-hidden />navigate</span>
-        <span className="inline-flex items-center gap-1"><CornerDownLeft className="h-3 w-3" aria-hidden />select</span>
-        <span className="ml-auto">{filtered.length} result{filtered.length === 1 ? "" : "s"}</span>
+        <span className="inline-flex items-center gap-1"><ArrowUp className="h-3 w-3" /><ArrowDown className="h-3 w-3" aria-hidden />{tr("navigate")}</span>
+        <span className="inline-flex items-center gap-1"><CornerDownLeft className="h-3 w-3" aria-hidden />{tr("select")}</span>
+        <span className="ml-auto">{tr(filtered.length === 1 ? "{n} result" : "{n} results", { n: filtered.length })}</span>
       </div>
     </>
   );
 }
 
 /** Cmd/Ctrl+K palette: filter-as-you-type, arrow keys + Enter, Esc to close. */
-export function CommandPalette({ open, onOpenChange, items, placeholder = "Search pages and actions…", title = "Quick search", accent = "emerald" }: {
+export function CommandPalette({ open, onOpenChange, items, placeholder, title, accent = "emerald" }: {
   open: boolean; onOpenChange: (o: boolean) => void; items: PaletteItem[]; placeholder?: string; title?: string; accent?: "emerald" | "navy";
 }) {
   const reduce = useReducedMotion();
+  const tr = useTr();
+  const ph = tr(placeholder ?? "Search pages and actions…");
+  const ttl = tr(title ?? "Quick search");
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
       <AnimatePresence>
@@ -125,8 +130,8 @@ export function CommandPalette({ open, onOpenChange, items, placeholder = "Searc
                   initial={reduce ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8, scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 420, damping: 34 }}
                 >
-                  <D.Title className="sr-only">{title}</D.Title>
-                  <Body items={items} placeholder={placeholder} accent={accent} onDone={() => onOpenChange(false)} />
+                  <D.Title className="sr-only">{ttl}</D.Title>
+                  <Body items={items} placeholder={ph} accent={accent} onDone={() => onOpenChange(false)} />
                 </motion.div>
               </D.Content>
             </div>

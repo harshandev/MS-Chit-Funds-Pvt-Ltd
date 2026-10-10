@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getScheme, schemes } from "@/data/demo";
-import { StatusBadge } from "@/components/ui/Badge";
+import { StatusChip } from "@/components/marketing/pages/StatusChip";
+import { T } from "@/i18n/T";
 import { SchemeStickyCta } from "@/components/marketing/EnquiryDialog";
 import { PageHero } from "@/components/marketing/shared";
 import { SchemeDetailClient } from "@/components/marketing/pages/SchemeDetailClient";
@@ -30,8 +31,8 @@ export default async function SchemePage({ params }: PageProps<"/chit-plans/[id]
         intro={scheme.summary}
       >
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-ivory"><StatusBadge status={scheme.status} /></span>
-          <span className="rounded-full border border-gold/50 bg-gold/10 px-2.5 py-0.5 text-xs font-semibold text-gold-soft">Illustrative demo scheme</span>
+          <span className="rounded-full bg-ivory"><StatusChip status={scheme.status} /></span>
+          <span className="rounded-full border border-gold/50 bg-gold/10 px-2.5 py-0.5 text-xs font-semibold text-gold-soft"><T>Illustrative demo scheme</T></span>
         </div>
       </PageHero>
       <SchemeDetailClient scheme={scheme} />

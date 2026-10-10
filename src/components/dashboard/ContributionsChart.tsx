@@ -3,6 +3,7 @@ import { useReducedMotion } from "motion/react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { Payment } from "@/data/types";
 import { formatINR, formatINRPrecise } from "@/lib/money";
+import { useTr } from "@/i18n/LanguageProvider";
 
 interface Row { instalment: string; no: number; successful: number; inProgress: number; other: number }
 
@@ -28,12 +29,13 @@ const series = [
 export function ContributionsChart({ payments }: { payments: Payment[] }) {
   const rows = contributionsByInstalment(payments);
   const reduce = useReducedMotion();
+  const tr = useTr();
   return (
     <figure aria-labelledby="chart-caption">
-      <figcaption id="chart-caption" className="sr-only">Payment amounts by instalment number, split by payment status. A data table with the same values follows.</figcaption>
+      <figcaption id="chart-caption" className="sr-only">{tr("Payment amounts by instalment number, split by payment status. A data table with the same values follows.")}</figcaption>
       <ul className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted" aria-hidden>
         {series.map((s) => (
-          <li key={s.key} className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm" style={{ background: s.color }} />{s.name}</li>
+          <li key={s.key} className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm" style={{ background: s.color }} />{tr(s.name)}</li>
         ))}
       </ul>
       <div className="h-64 w-full" aria-hidden>
@@ -42,14 +44,14 @@ export function ContributionsChart({ payments }: { payments: Payment[] }) {
             <CartesianGrid stroke="var(--line)" vertical={false} />
             <XAxis dataKey="instalment" tickLine={false} axisLine={{ stroke: "var(--line)" }} tick={{ fill: "var(--ink-muted)", fontSize: 12 }} />
             <YAxis width={52} tickLine={false} axisLine={false} tick={{ fill: "var(--ink-muted)", fontSize: 12 }} tickFormatter={(v: number) => `₹${v >= 1000 ? `${+(v / 1000).toFixed(1)}k` : v}`} />
-            <Tooltip cursor={{ fill: "var(--emerald-50)", opacity: 0.7 }} formatter={(v, name) => [formatINR(Number(v) * 100), String(name)]} labelFormatter={(l) => `Instalment ${String(l).replace("#", "")}`} contentStyle={{ borderRadius: 12, border: "1px solid var(--line)", fontSize: 12, boxShadow: "var(--shadow-2)" }} />
-            {series.map((s, i) => <Bar key={s.key} dataKey={s.key} name={s.name} stackId="a" fill={s.color} maxBarSize={44} isAnimationActive={!reduce} animationBegin={i * 120} animationDuration={900} animationEasing="ease-out" radius={i === series.length - 1 ? [6, 6, 0, 0] : 0} />)}
+            <Tooltip cursor={{ fill: "var(--emerald-50)", opacity: 0.7 }} formatter={(v, name) => [formatINR(Number(v) * 100), tr(String(name))]} labelFormatter={(l) => tr("Instalment {n}", { n: String(l).replace("#", "") })} contentStyle={{ borderRadius: 12, border: "1px solid var(--line)", fontSize: 12, boxShadow: "var(--shadow-2)" }} />
+            {series.map((s, i) => <Bar key={s.key} dataKey={s.key} name={tr(s.name)} stackId="a" fill={s.color} maxBarSize={44} isAnimationActive={!reduce} animationBegin={i * 120} animationDuration={900} animationEasing="ease-out" radius={i === series.length - 1 ? [6, 6, 0, 0] : 0} />)}
           </BarChart>
         </ResponsiveContainer>
       </div>
       <div className="sr-only"><table>
-        <caption>Payment amounts by instalment and status</caption>
-        <thead><tr><th scope="col">Instalment</th><th scope="col">Successful</th><th scope="col">Pending or under reconciliation</th><th scope="col">Failed or refunded</th></tr></thead>
+        <caption>{tr("Payment amounts by instalment and status")}</caption>
+        <thead><tr><th scope="col">{tr("Instalment")}</th><th scope="col">{tr("Successful")}</th><th scope="col">{tr("Pending or under reconciliation")}</th><th scope="col">{tr("Failed or refunded")}</th></tr></thead>
         <tbody>
           {rows.map((r) => (
             <tr key={r.no}><th scope="row">{r.instalment}</th><td>{formatINRPrecise(r.successful * 100)}</td><td>{formatINRPrecise(r.inProgress * 100)}</td><td>{formatINRPrecise(r.other * 100)}</td></tr>

@@ -1,12 +1,14 @@
 "use client";
 import { useId } from "react";
 import { cn } from "@/lib/cn";
+import { useTr } from "@/i18n/LanguageProvider";
 
 /** Touch-friendly range slider with filled track, large thumb and visible focus ring. */
 export function RangeSlider({ label, value, min, max, step = 1, onChange, display, hint, className, tone = "emerald", hideLabel }: {
   label: string; value: number; min: number; max: number; step?: number; onChange: (v: number) => void;
   display?: string; hint?: string; className?: string; tone?: "emerald" | "gold"; hideLabel?: boolean;
 }) {
+  const tr = useTr();
   const id = useId();
   const clamped = Math.min(max, Math.max(min, Number.isFinite(value) ? value : min));
   const pct = max === min ? 0 : ((clamped - min) / (max - min)) * 100;
@@ -14,7 +16,7 @@ export function RangeSlider({ label, value, min, max, step = 1, onChange, displa
   return (
     <div className={className}>
       <div className={cn("flex items-baseline justify-between gap-3", hideLabel && "sr-only")}>
-        <label htmlFor={id} className="text-sm font-semibold text-ink">{label}</label>
+        <label htmlFor={id} className="text-sm font-semibold text-ink">{tr(label)}</label>
         {display && <output htmlFor={id} className="text-sm font-bold tabular-nums text-emerald">{display}</output>}
       </div>
       <input
@@ -34,7 +36,7 @@ export function RangeSlider({ label, value, min, max, step = 1, onChange, displa
           "focus-visible:[&::-webkit-slider-thumb]:ring-4 focus-visible:[&::-webkit-slider-thumb]:ring-gold/40",
         )}
       />
-      {hint && <p className="mt-2 text-xs text-muted">{hint}</p>}
+      {hint && <p className="mt-2 text-xs text-muted">{tr(hint)}</p>}
     </div>
   );
 }

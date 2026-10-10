@@ -16,7 +16,7 @@ export function LogoMark({ className, tone = "light" }: { className?: string; to
 
 export function Logo({ tone = "light", className }: { tone?: "light" | "dark"; className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
+    <span className={cn("inline-flex shrink-0 items-center gap-2.5 whitespace-nowrap", className)}>
       <LogoMark tone={tone} />
       <span className="leading-tight">
         <span className={cn("block font-heading text-[17px] font-extrabold tracking-tight", tone === "light" ? "text-emerald" : "text-ivory")}>MS Chit Funds</span>

@@ -2,6 +2,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import { Check, X, Minus } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { useTr } from "@/i18n/LanguageProvider";
 
 export type StepState = "done" | "current" | "blocked" | "todo" | "skipped";
 export interface Step { label: string; short?: string; state: StepState; note?: string; tag?: string }
@@ -18,6 +19,7 @@ const nodeCls: Record<StepState, string> = {
 /** Animated horizontal step track used for approval workflows and auction lifecycles. */
 export function StepTracker({ steps, label, compact, className, tone = "emerald" }: { steps: Step[]; label: string; compact?: boolean; className?: string; tone?: "emerald" | "navy" }) {
   const reduce = useReducedMotion();
+  const tr = useTr();
   const done = tone === "navy" ? "border-navy bg-navy text-ivory" : nodeCls.done;
   const fill = tone === "navy" ? "bg-navy" : "bg-emerald";
   const size = compact ? "h-6 w-6" : "h-8 w-8";
@@ -43,7 +45,7 @@ export function StepTracker({ steps, label, compact, className, tone = "emerald"
               {s.state === "current" && !reduce && <motion.span className="absolute inset-[-5px] rounded-full border-2 border-gold-antique" animate={{ scale: [1, 1.25], opacity: [0.55, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }} />}
               {s.state === "done" ? <Check className={compact ? "h-3 w-3" : "h-4 w-4"} strokeWidth={3} /> : s.state === "blocked" ? <X className={compact ? "h-3 w-3" : "h-4 w-4"} strokeWidth={3} /> : s.state === "skipped" ? <Minus className="h-3 w-3" /> : s.state === "current" ? <span className="h-2 w-2 rounded-full bg-current" /> : i + 1}
             </motion.span>
-            <span className="sr-only">{s.label}: {stateText[s.state]}{s.tag ? ` (${s.tag})` : ""}{s.note ? `. ${s.note}` : ""}</span>
+            <span className="sr-only">{s.label}: {tr(stateText[s.state])}{s.tag ? ` (${s.tag})` : ""}{s.note ? `. ${s.note}` : ""}</span>
             <span aria-hidden className={cn("mt-1.5 max-w-full px-0.5 font-semibold leading-tight", compact ? "text-[10px]" : "text-[11px] sm:text-xs", s.state === "todo" || s.state === "skipped" ? "text-muted" : s.state === "blocked" ? "text-danger" : "text-ink")}>
               <span className={s.short ? "sm:hidden" : "hidden"}>{s.short}</span>
               <span className={s.short ? "hidden sm:inline" : ""}>{s.label}</span>

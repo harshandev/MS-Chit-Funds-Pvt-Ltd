@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 import { company, publicNav } from "@/config/company";
+import { T } from "@/i18n/T";
 import { FooterLine, Wordmark } from "./FooterLine";
 
 const legal = [
@@ -21,34 +22,34 @@ export function SiteFooter() {
       <div className="relative mx-auto grid max-w-7xl gap-10 px-4 pb-10 pt-16 sm:px-6 md:grid-cols-4">
         <div className="md:col-span-2">
           <Logo tone="dark" />
-          <p className="mt-5 max-w-md text-sm leading-relaxed text-ivory/75">{company.description}</p>
-          <p className="mt-3 font-serif text-xl italic text-gold">{company.tagline}</p>
+          <p className="mt-5 max-w-md text-sm leading-relaxed text-ivory/75"><T>{company.description}</T></p>
+          <p className="mt-3 font-serif text-xl italic text-gold"><T>{company.tagline}</T></p>
           {socials.length > 0 && (
-            <ul className="mt-4 flex gap-4 text-sm">{socials.map(([k, v]) => <li key={k}><a href={v} rel="noopener noreferrer" target="_blank" className="capitalize underline">{k}</a></li>)}</ul>
+            <ul className="mt-4 flex gap-4 text-sm">{socials.map(([k, v]) => <li key={k}><a href={v} rel="noopener noreferrer" target="_blank" className="capitalize underline"><T>{k.charAt(0).toUpperCase() + k.slice(1)}</T></a></li>)}</ul>
           )}
         </div>
         <nav aria-label="Footer explore">
-          <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-gold">Explore</h2>
+          <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-gold"><T>Explore</T></h2>
           <ul className="mt-4 space-y-1 text-sm">
-            {publicNav.map((n) => <li key={n.href}><Link href={n.href} className={link}>{n.label}</Link></li>)}
-            <li><Link href="/calculator" className={link}>Chit Calculator</Link></li>
+            {publicNav.map((n) => <li key={n.href}><Link href={n.href} className={link}><T>{n.label}</T></Link></li>)}
+            <li><Link href="/calculator" className={link}><T>Chit Calculator</T></Link></li>
           </ul>
         </nav>
         <div>
-          <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-gold">Legal &amp; contact</h2>
+          <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-gold"><T>Legal & contact</T></h2>
           <ul className="mt-4 space-y-1 text-sm">
-            {legal.map((n) => <li key={n.href}><Link href={n.href} className={link}>{n.label}</Link></li>)}
+            {legal.map((n) => <li key={n.href}><Link href={n.href} className={link}><T>{n.label}</T></Link></li>)}
           </ul>
           <ul className="mt-4 space-y-1 text-sm text-ivory/75">
-            <li>Phone: {c.phone ?? "To be updated"}</li>
-            <li>Email: {c.email ?? "To be updated"}</li>
-            <li>Office: {c.registeredOffice ?? "To be updated"}</li>
+            <li><T vars={{ v: c.phone ?? "" }}>{c.phone ? "Phone: {v}" : "Phone: To be updated"}</T></li>
+            <li><T vars={{ v: c.email ?? "" }}>{c.email ? "Email: {v}" : "Email: To be updated"}</T></li>
+            <li><T vars={{ v: c.registeredOffice ?? "" }}>{c.registeredOffice ? "Office: {v}" : "Office: To be updated"}</T></li>
           </ul>
         </div>
       </div>
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6"><Wordmark text={company.shortName} /></div>
       <div className="relative border-t border-ivory/15 px-4 py-5 text-center text-xs text-ivory/60">
-        © {new Date().getFullYear()} {company.displayName} · Participation in any chit scheme is subject to the approved scheme terms and applicable law. Illustrations on this site are not offers or guarantees.
+        © {new Date().getFullYear()} {company.displayName} · <T>Participation in any chit scheme is subject to the approved scheme terms and applicable law. Illustrations on this site are not offers or guarantees.</T>
       </div>
     </footer>
   );
