@@ -1,36 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MS Chit Funds Pvt. Ltd. — website (DEMO BUILD)
 
-## Getting Started
+Next.js 16 · TypeScript · Tailwind 4 · Radix UI · Recharts · React Hook Form + Zod. Deploys to Vercel as-is (`vercel` / Git import, framework auto-detected).
 
-First, run the development server:
+**Everything is simulated.** No real payments, KYC, e-signatures or auctions. Demo sign-in OTP is `123456` (see `src/config/company.ts`), shown on screen as a development-only code.
 
+## Run
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm run typecheck && npm run lint && npm test && npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Structure
+- `src/config/company.ts` — legal name, contact, verified facts (all `null` until supplied; unverified values are hidden on public pages and listed as missing in `/admin/compliance`).
+- `src/lib/money.ts`, `src/lib/chit.ts` — integer-paise money + deterministic illustrative chit maths (unit-tested).
+- `src/data/*` — central demo data. `src/services/*` — service interfaces with **mock adapters**; swap for a real API without touching UI.
+- `src/components/ui` — design system. Tokens live in `src/app/globals.css`.
+- `src/i18n` — English + draft Tamil (needs human translation review).
+- Routes: public `(public)`, `(auth)`, `/dashboard/*` (customer), `/admin/*` (console).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Before launch
+Verify company name/CIN/office/registrations/grievance contact, replace provisional logo, get legal text (scheme terms, privacy, terms) approved, review Tamil copy, build a real backend (auth, server-side calculations/auctions, payment gateway + webhooks, KYC, e-sign, audit), then set `NEXT_PUBLIC_ALLOW_INDEXING=true`. See `.env.example`.

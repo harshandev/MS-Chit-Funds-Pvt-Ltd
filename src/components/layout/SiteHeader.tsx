@@ -36,21 +36,21 @@ export function SiteHeader() {
       <header className="sticky top-0 z-40 border-b border-line bg-ivory/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           <Link href="/" aria-label={`${company.displayName} home`}><Logo /></Link>
-          <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
+          <nav aria-label="Primary" className="hidden items-center gap-1 xl:flex">
             {publicNav.map((n) => (
               <Link key={n.href} href={n.href} aria-current={path === n.href ? "page" : undefined}
-                className={cn("rounded-md px-3 py-2 text-sm font-medium hover:text-emerald", path === n.href ? "text-emerald underline decoration-gold decoration-2 underline-offset-8" : "text-ink")}>
+                className={cn("whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium hover:text-emerald", path === n.href ? "text-emerald underline decoration-gold decoration-2 underline-offset-8" : "text-ink")}>
                 {t(keys[n.href])}
               </Link>
             ))}
           </nav>
-          <div className="hidden items-center gap-3 lg:flex">
+          <div className="hidden items-center gap-3 xl:flex">
             <LangSwitch />
             <Link href="/login" className={buttonClass("ghost", "sm")}>{t("nav.signin")}</Link>
             <Link href="/chit-plans" className={buttonClass("primary", "sm")}>{t("nav.explore")}</Link>
           </div>
           <D.Root open={open} onOpenChange={setOpen}>
-            <D.Trigger className="rounded-md p-2 text-emerald lg:hidden" aria-label="Open menu"><Menu className="h-6 w-6" /></D.Trigger>
+            <D.Trigger className="rounded-md p-2 text-emerald xl:hidden" aria-label="Open menu"><Menu className="h-6 w-6" /></D.Trigger>
             <D.Portal>
               <D.Overlay className="fixed inset-0 z-50 bg-navy/50" />
               <D.Content className="fixed right-0 top-0 z-50 flex h-dvh w-[min(20rem,100vw)] flex-col bg-ivory p-5 shadow-[var(--shadow-3)]">

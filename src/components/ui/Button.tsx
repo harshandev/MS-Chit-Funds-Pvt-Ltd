@@ -17,7 +17,7 @@ const sizes: Record<Size, string> = {
   md: "min-h-11 px-5 text-sm",
   lg: "min-h-12 px-7 text-base",
 };
-const base = "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+const base = "inline-flex whitespace-nowrap items-center justify-center gap-2 rounded-md font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50";
 
 export function buttonClass(variant: Variant = "primary", size: Size = "md", extra?: string) {
   return cn(base, styles[variant], sizes[size], extra);
