@@ -1,5 +1,6 @@
 "use client";
 import * as D from "@radix-ui/react-dialog";
+import { AnimatePresence, motion } from "motion/react";
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
@@ -15,30 +16,43 @@ interface Props {
   variant?: "dialog" | "drawer";
 }
 
+const ease = [0.22, 1, 0.36, 1] as const;
+
 export function Dialog({ open, onOpenChange, title, description, children, footer, variant = "dialog" }: Props) {
+  const drawer = variant === "drawer";
   return (
     <D.Root open={open} onOpenChange={onOpenChange}>
-      <D.Portal>
-        <D.Overlay className="fixed inset-0 z-50 bg-navy/50" />
-        <D.Content
-          className={cn(
-            "fixed z-50 flex max-h-[90dvh] flex-col bg-white shadow-[var(--shadow-3)]",
-            variant === "dialog"
-              ? "left-1/2 top-1/2 w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg"
-              : "right-0 top-0 h-dvh max-h-none w-full max-w-md",
-          )}
-        >
-          <div className="flex items-start justify-between gap-4 border-b border-line p-5">
-            <div>
-              <D.Title className="text-lg font-bold text-emerald">{title}</D.Title>
-              <D.Description className={cn("mt-1 text-sm text-muted", !description && "sr-only")}>{description ?? title}</D.Description>
-            </div>
-            <D.Close className="rounded-md p-2 text-muted hover:bg-ivory" aria-label="Close"><X className="h-5 w-5" /></D.Close>
-          </div>
-          <div className="overflow-y-auto p-5 text-sm">{children}</div>
-          {footer && <div className="flex flex-wrap justify-end gap-3 border-t border-line p-4">{footer}</div>}
-        </D.Content>
-      </D.Portal>
+      <AnimatePresence>
+        {open && (
+          <D.Portal forceMount>
+            <D.Overlay asChild forceMount>
+              <motion.div className="fixed inset-0 z-50 bg-navy/55 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} />
+            </D.Overlay>
+            <D.Content asChild forceMount>
+              <motion.div
+                className={cn(
+                  "fixed z-50 flex flex-col bg-white shadow-[var(--shadow-3)] outline-none",
+                  drawer ? "right-0 top-0 h-dvh w-full max-w-md" : "inset-0 m-auto h-fit max-h-[90dvh] w-[calc(100vw-2rem)] max-w-lg rounded-2xl",
+                )}
+                initial={drawer ? { x: "100%" } : { opacity: 0, y: 24, scale: 0.97 }}
+                animate={drawer ? { x: 0 } : { opacity: 1, y: 0, scale: 1 }}
+                exit={drawer ? { x: "100%" } : { opacity: 0, y: 12, scale: 0.98 }}
+                transition={{ duration: 0.32, ease }}
+              >
+                <div className="flex items-start justify-between gap-4 border-b border-line p-5">
+                  <div>
+                    <D.Title className="text-lg font-bold text-emerald">{title}</D.Title>
+                    <D.Description className={cn("mt-1 text-sm text-muted", !description && "sr-only")}>{description ?? title}</D.Description>
+                  </div>
+                  <D.Close className="rounded-lg p-2 text-muted transition-colors hover:bg-ivory hover:text-ink" aria-label="Close"><X className="h-5 w-5" /></D.Close>
+                </div>
+                <div className="overflow-y-auto p-5 text-sm">{children}</div>
+                {footer && <div className="flex flex-wrap justify-end gap-3 border-t border-line p-4">{footer}</div>}
+              </motion.div>
+            </D.Content>
+          </D.Portal>
+        )}
+      </AnimatePresence>
     </D.Root>
   );
 }
@@ -51,8 +65,8 @@ export function ConfirmDialog({ open, onOpenChange, title, description, confirmL
     <Dialog open={open} onOpenChange={onOpenChange} title={title} description={description}
       footer={
         <>
-          <button className="min-h-10 rounded-md px-4 text-sm font-semibold text-muted hover:bg-ivory" onClick={() => onOpenChange(false)}>Cancel</button>
-          <button className={cn("min-h-10 rounded-md px-4 text-sm font-semibold text-white", danger ? "bg-danger" : "bg-emerald")} onClick={() => { onConfirm(); onOpenChange(false); }}>{confirmLabel}</button>
+          <button className="min-h-10 rounded-lg px-4 text-sm font-semibold text-muted transition-colors hover:bg-ivory" onClick={() => onOpenChange(false)}>Cancel</button>
+          <button className={cn("min-h-10 rounded-lg px-4 text-sm font-semibold text-white transition-transform active:scale-[0.97]", danger ? "bg-danger" : "bg-emerald")} onClick={() => { onConfirm(); onOpenChange(false); }}>{confirmLabel}</button>
         </>
       }
     />

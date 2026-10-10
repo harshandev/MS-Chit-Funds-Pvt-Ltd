@@ -35,6 +35,9 @@ interface Ctx {
   addTicket: (t: SupportTicket) => void;
   saveNominee: (n: Nominee) => void;
   nextTicketNo: () => string;
+  /** UI-only: lets the command palette ask the Payments page to open the (simulated) pay dialog. */
+  payIntent: boolean;
+  setPayIntent: (v: boolean) => void;
 }
 
 const DashCtx = createContext<Ctx | null>(null);
@@ -58,6 +61,7 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
   const [allRead, setAllRead] = useState(false);
   const [localTickets, setLocalTickets] = useState<SupportTicket[]>([]);
   const [nominee, setNominee] = useState<Nominee | null | undefined>(undefined);
+  const [payIntent, setPayIntent] = useState(false);
 
   const data = useMemo<Snapshot | null>(() => {
     if (loaded.status !== "ready") return null;
@@ -83,7 +87,7 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
 
   const value: Ctx = {
     status: loaded.status, error: loaded.status === "error" ? loaded.error : undefined, retry: loaded.retry,
-    data, unreadCount, nominee: effectiveNominee, addPayment, markRead, markAllRead, addTicket, saveNominee, nextTicketNo,
+    data, unreadCount, nominee: effectiveNominee, addPayment, markRead, markAllRead, addTicket, saveNominee, nextTicketNo, payIntent, setPayIntent,
   };
   return <DashCtx.Provider value={value}>{children}</DashCtx.Provider>;
 }

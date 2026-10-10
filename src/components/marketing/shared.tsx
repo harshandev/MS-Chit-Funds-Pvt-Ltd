@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
+import { Lock, TriangleAlert } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { Eyebrow } from "@/components/ui/Card";
 
 export function Container({ className, children }: { className?: string; children: ReactNode }) {
   return <div className={cn("mx-auto max-w-7xl px-4 sm:px-6", className)}>{children}</div>;
@@ -16,27 +16,13 @@ export function Section({ id, tone = "ivory", className, children, "aria-labelle
   );
 }
 
-/** Top-of-page heading block for inner pages. Renders the page's single h1. */
-export function PageHero({ eyebrow, title, intro, children }: { eyebrow: string; title: string; intro?: string; children?: ReactNode }) {
-  return (
-    <div className="border-b border-line bg-white">
-      <Container className="py-12 sm:py-16">
-        <div className="rise max-w-3xl">
-          <Eyebrow>{eyebrow}</Eyebrow>
-          <h1 className="mt-3 text-4xl font-extrabold text-emerald sm:text-5xl">{title}</h1>
-          {intro && <p className="mt-4 text-lg leading-relaxed text-muted">{intro}</p>}
-          {children && <div className="mt-6">{children}</div>}
-        </div>
-      </Container>
-    </div>
-  );
-}
+export { PageHero } from "./pages/PageHero";
 
 /** Clearly marked placeholder for content that needs legal approval. */
 export function LegalPlaceholder({ children }: { children?: ReactNode }) {
   return (
-    <div className="rounded-md border border-dashed border-gold-antique/60 bg-gold/10 px-4 py-3 text-sm text-ink">
-      <p className="font-semibold">Pending legal approval — to be supplied</p>
+    <div className="rounded-xl border border-dashed border-gold-antique/60 bg-gold/10 px-4 py-3 text-sm text-ink">
+      <p className="flex items-center gap-2 font-semibold"><Lock className="h-3.5 w-3.5 text-gold-antique" aria-hidden />Pending legal approval — to be supplied</p>
       <p className="mt-1 text-muted">{children ?? "This section will be completed from the approved scheme agreement. No terms are stated here."}</p>
     </div>
   );
@@ -44,7 +30,7 @@ export function LegalPlaceholder({ children }: { children?: ReactNode }) {
 
 export function DraftBanner({ children }: { children: ReactNode }) {
   return (
-    <div role="note" className="rounded-md border border-warning/40 bg-warning/10 px-4 py-3 text-sm font-medium text-ink">{children}</div>
+    <div role="note" className="flex items-start gap-3 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm font-medium text-ink"><TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden /><div>{children}</div></div>
   );
 }
 

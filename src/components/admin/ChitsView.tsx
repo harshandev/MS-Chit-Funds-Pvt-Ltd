@@ -70,12 +70,14 @@ export function DraftForm({ id, initial, onSubmit }: { id: string; initial?: Par
 
 export function ChitsView() {
   const { state, retry } = useLoad(adminExtraService.schemes);
-  const { applyLocal, addDraftScheme, addAudit, requests } = useAdminState();
+  const { applyLocal, addDraftScheme, addAudit, requests, createIntent, setCreateIntent } = useAdminState();
   const { role } = useActingAs();
   const toast = useToast();
   const [status, setStatus] = useState("all");
   const [q, setQ] = useState("");
-  const [creating, setCreating] = useState(false);
+  const [manualCreate, setManualCreate] = useState(false);
+  const creating = manualCreate || createIntent;
+  const setCreating = (o: boolean) => { setManualCreate(o); if (!o) setCreateIntent(false); };
   const [target, setTarget] = useState<Scheme | null>(null);
 
   return (

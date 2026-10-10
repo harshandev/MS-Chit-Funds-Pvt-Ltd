@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Accordion } from "@/components/ui/Accordion";
-import { generalFaqs } from "@/components/marketing/faqs";
+import { FaqExplorer } from "@/components/marketing/pages/FaqExplorer";
 import { Container, PageHero } from "@/components/marketing/shared";
 
 export const metadata: Metadata = {
@@ -12,11 +10,8 @@ export const metadata: Metadata = {
 export default function FaqPage() {
   return (
     <>
-      <PageHero eyebrow="FAQ" title="Frequently asked questions." intro="Honest answers to common questions. If yours is missing, send us a message." />
-      <Container className="max-w-3xl py-12">
-        <Accordion items={generalFaqs.map((f) => ({ q: f.q, a: f.a }))} />
-        <p className="mt-8 text-sm text-muted">Still have a question? <Link href="/contact" className="font-semibold text-emerald underline">Contact us</Link>.</p>
-      </Container>
+      <PageHero eyebrow="FAQ" title="Frequently asked" accent="questions." intro="Honest answers to common questions. Search, filter by topic — and if yours is missing, send us a message." />
+      <div className="bg-gradient-to-b from-ivory to-white"><Container className="max-w-3xl py-12"><FaqExplorer /></Container></div>
     </>
   );
 }

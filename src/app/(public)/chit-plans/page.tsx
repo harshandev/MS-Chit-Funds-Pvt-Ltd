@@ -10,8 +10,10 @@ export const metadata: Metadata = {
 export default function ChitPlansPage() {
   return (
     <>
-      <PageHero eyebrow="Chit plans" title="Explore chit plans." intro="Compare illustrative schemes by value, instalment and duration. Each scheme page lists its terms headings and status." />
-      <Container className="py-10 sm:py-12"><PlansExplorer /></Container>
+      <PageHero eyebrow="Chit plans" title="Explore" accent="chit plans." intro="Compare illustrative schemes by value, instalment and duration. Each scheme page lists its terms headings and status." />
+      <div className="bg-gradient-to-b from-ivory to-white">
+        <Container className="py-10 sm:py-12"><PlansExplorer /></Container>
+      </div>
     </>
   );
 }

@@ -53,6 +53,9 @@ interface Value {
   requests: SchemeRequest[];
   raiseRequest: (schemeId: string, from: SchemeStatus, to: SchemeStatus, reason: string) => void;
   decideRequest: (id: string, decision: "approve" | "reject", note: string) => Result;
+  /** UI-only: lets the command palette ask the Chit schemes page to open its "Create draft scheme" dialog. */
+  createIntent: boolean;
+  setCreateIntent: (v: boolean) => void;
 }
 
 const Ctx = createContext<Value | null>(null);
@@ -68,6 +71,7 @@ const nextId = (p: string) => `${p}-${Date.now().toString(36)}-${(seq += 1)}`;
 export function AdminStateProvider({ children }: { children: ReactNode }) {
   const { role, actor } = useActingAs();
   const [audit, setAudit] = useState<SessionAudit[]>([]);
+  const [createIntent, setCreateIntent] = useState(false);
   const [createdSchemes, setCreated] = useState<Scheme[]>([]);
   const [patches, setPatches] = useState<Record<string, SchemePatch>>({});
   const [statuses, setStatuses] = useState<Record<string, SchemeStatus>>({});
@@ -111,8 +115,8 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
     return finish("Approved (simulated)", `Simulated transition to ${req.to}. Nothing operational has changed.`, "Approved scheme status change (simulated)", req.to);
   }, [requests, role, addAudit]);
 
-  const value = useMemo<Value>(() => ({ audit, addAudit, createdSchemes, addDraftScheme, patchScheme, applyLocal, requests, raiseRequest, decideRequest }),
-    [audit, addAudit, createdSchemes, addDraftScheme, patchScheme, applyLocal, requests, raiseRequest, decideRequest]);
+  const value = useMemo<Value>(() => ({ audit, addAudit, createdSchemes, addDraftScheme, patchScheme, applyLocal, requests, raiseRequest, decideRequest, createIntent, setCreateIntent }),
+    [audit, addAudit, createdSchemes, addDraftScheme, patchScheme, applyLocal, requests, raiseRequest, decideRequest, createIntent]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

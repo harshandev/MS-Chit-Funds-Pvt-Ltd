@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/misc";
 import { useToast } from "@/components/ui/Toast";
 import { useActingAs, type ActingRole } from "./ActingAs";
 import { useAdminState } from "./AdminState";
+import { PayoutTracker } from "./ApprovalTracker";
 import { AdminTable, AsyncView, FilterBar, FilterSearch, FilterSelect, MakerCheckerNote, PageHeader, ReasonField, SimulatedTag, SmallButton, StatusPill, allOption, minReason, reasonError, useLoad } from "./common";
 
 async function load() {
@@ -87,7 +88,7 @@ export function PayoutsView() {
                   { key: "amt", header: "Amount", render: (p) => formatINR(p.amount), className: "text-right" },
                   { key: "docs", header: "Required documents", render: (p) => (
                     <ul className="space-y-0.5 text-left text-xs">{(metaOf(p.id)?.docs ?? p.docsRequired.map((n) => ({ name: n, state: "Not received" as const }))).map((d) => <li key={d.name} className="flex items-center justify-between gap-2"><span>{d.name}</span><StatusPill status={d.state} /></li>)}</ul>) },
-                  { key: "st", header: "Approval status", render: (p) => <span className="inline-flex flex-wrap items-center gap-1.5"><StatusPill status={cur(p).status} />{cur(p).status === "Approved (simulated)" && <SimulatedTag />}</span> },
+                  { key: "st", header: "Approval status", render: (p) => <span className="flex flex-col items-end gap-2 md:items-stretch"><PayoutTracker id={p.id} status={cur(p).status} /><span className="inline-flex flex-wrap items-center gap-1.5"><StatusPill status={cur(p).status} />{cur(p).status === "Approved (simulated)" && <SimulatedTag />}</span></span> },
                   { key: "rs", header: "Reason / failure", render: (p) => <span className="text-xs text-muted">{cur(p).reason ?? "—"}</span> },
                   { key: "ac", header: "Actions", render: actions },
                 ]} />

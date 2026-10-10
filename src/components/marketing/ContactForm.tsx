@@ -1,4 +1,6 @@
 "use client";
+import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -7,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 import { DemoNote } from "@/components/ui/misc";
 import { mobileSchema } from "./validation";
+import { AnimatedCheck } from "./pages/AnimatedCheck";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Enter your full name."),
@@ -20,6 +23,7 @@ type Values = z.infer<typeof schema>;
 
 export function ContactForm() {
   const toast = useToast();
+  const [sent, setSent] = useState(false);
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { name: "", mobile: "", email: "", topic: "", message: "", consent: false },
@@ -28,9 +32,19 @@ export function ContactForm() {
     await new Promise((r) => setTimeout(r, 300));
     toast("Message recorded in demo mode — not sent.");
     reset();
+    setSent(true);
   });
   return (
-    <form onSubmit={onSubmit} noValidate className="space-y-4" aria-label="Contact form">
+    <AnimatePresence mode="wait" initial={false}>
+      {sent ? (
+        <motion.div key="done" role="status" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center rounded-3xl border border-emerald/20 bg-white p-10 text-center shadow-[var(--shadow-2)]">
+          <AnimatedCheck />
+          <h2 className="mt-5 font-serif text-3xl text-emerald">Message <span className="italic text-gold-antique">recorded</span></h2>
+          <p className="mt-2 max-w-sm text-sm text-muted">Demo mode: your message was validated here but nothing was sent or stored.</p>
+          <Button variant="secondary" className="mt-6" onClick={() => setSent(false)}>Write another message</Button>
+        </motion.div>
+      ) : (
+    <motion.form key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onSubmit={onSubmit} noValidate className="space-y-4 rounded-3xl border border-line/80 bg-white p-5 shadow-[var(--shadow-2)] sm:p-7" aria-label="Contact form">
       <DemoNote>Demo mode: your message is validated here but is not sent or stored.</DemoNote>
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField label="Full name" autoComplete="name" error={errors.name?.message} {...register("name")} />
@@ -53,7 +67,9 @@ export function ContactForm() {
         </label>
         {errors.consent && <p role="alert" className="text-xs font-medium text-danger">{errors.consent.message}</p>}
       </div>
-      <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Recording…" : "Send message"}</Button>
-    </form>
+      <Button type="submit" disabled={isSubmitting} className="transition-transform active:scale-[0.97]">{isSubmitting ? "Recording…" : "Send message"}</Button>
+    </motion.form>
+      )}
+    </AnimatePresence>
   );
 }

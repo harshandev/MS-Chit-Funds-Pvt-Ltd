@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Download, FileText, Search } from "lucide-react";
+import { Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { EmptyState } from "@/components/ui/misc";
 import { Badge } from "@/components/ui/Badge";
 import { TextField } from "@/components/ui/fields";
@@ -30,14 +31,14 @@ function Documents({ d }: { d: Snapshot }) {
             return (
               <section key={cat} aria-labelledby={`cat-${cat}`}>
                 <h2 id={`cat-${cat}`} className="mb-3 text-base font-bold text-emerald">{cat === "Receipt" ? "Receipts" : cat === "Agreement" ? "Agreements" : cat === "Scheme document" ? "Scheme documents" : cat === "Auction statement" ? "Auction statements" : cat}</h2>
-                <ul className="divide-y divide-line rounded-lg border border-line bg-white">
+                <Stagger gap={0.05} className="divide-y divide-line overflow-hidden rounded-2xl border border-line/80 bg-white shadow-[var(--shadow-1)]">
                   {list.map((x) => {
                     const mem = x.membershipId ? d.memberships.find((m) => m.id === x.membershipId) : undefined;
                     const sc = mem ? schemeFor(d, mem.schemeId) : undefined;
                     return (
-                      <li key={x.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+                      <StaggerItem key={x.id} className="flex flex-wrap items-center justify-between gap-3 p-4 transition-colors hover:bg-emerald-50/60">
                         <div className="flex min-w-0 items-start gap-3">
-                          <FileText className="mt-0.5 h-5 w-5 shrink-0 text-gold-antique" aria-hidden />
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gold/20 text-gold-antique"><FileText className="h-5 w-5" aria-hidden /></span>
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-ink">{x.name}</p>
                             <p className="text-xs text-muted">{x.fileUrl ? x.note : `No file available yet. ${x.note}`}</p>
@@ -50,10 +51,10 @@ function Documents({ d }: { d: Snapshot }) {
                             ? <a href={x.fileUrl} download className="inline-flex min-h-11 items-center gap-2 rounded-md bg-emerald px-4 text-sm font-semibold text-ivory hover:bg-emerald-700"><Download className="h-4 w-4" aria-hidden />Download<span className="sr-only"> {x.name}</span></a>
                             : <Button variant="secondary" disabled aria-disabled="true"><Download className="h-4 w-4" aria-hidden />Download<span className="sr-only"> {x.name} (not available)</span></Button>}
                         </div>
-                      </li>
+                      </StaggerItem>
                     );
                   })}
-                </ul>
+                </Stagger>
               </section>
             );
           })}

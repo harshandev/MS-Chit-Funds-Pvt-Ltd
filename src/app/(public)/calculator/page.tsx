@@ -10,10 +10,10 @@ export const metadata: Metadata = {
 export default function CalculatorPage() {
   return (
     <>
-      <PageHero eyebrow="Calculator" title="Chit calculator." intro="Change the inputs and see the arithmetic update live.">
-        <p role="note" className="inline-block rounded-md border border-gold/50 bg-gold/15 px-4 py-2.5 text-sm font-bold text-ink">Illustrative estimate — not investment returns or a scheme quote.</p>
+      <PageHero eyebrow="Calculator" title="The chit" accent="calculator." intro="Drag a slider or type a value and watch the arithmetic update live.">
+        <p role="note" className="inline-block rounded-full border border-gold/60 bg-gold px-4 py-2 text-sm font-extrabold text-navy">Illustrative estimate — not investment returns or a scheme quote.</p>
       </PageHero>
-      <Container className="py-10"><CalculatorClient /></Container>
+      <div className="bg-gradient-to-b from-ivory to-white"><Container className="py-10"><CalculatorClient /></Container></div>
     </>
   );
 }

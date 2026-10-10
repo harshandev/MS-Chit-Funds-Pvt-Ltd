@@ -4,12 +4,12 @@ import { cn } from "@/lib/cn";
 import type { ReactNode } from "react";
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn("animate-pulse rounded-md bg-line/70", className)} aria-hidden />;
+  return <div className={cn("rounded-lg bg-[linear-gradient(110deg,var(--line)_30%,var(--ivory)_50%,var(--line)_70%)] bg-[length:200%_100%] animate-[shimmer_1.6s_linear_infinite]", className)} aria-hidden />;
 }
 export function EmptyState({ title, text, action }: { title: string; text?: string; action?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center rounded-lg border border-dashed border-line bg-white px-6 py-12 text-center">
-      <Inbox className="h-8 w-8 text-gold-antique" />
+    <div className="flex flex-col items-center rounded-xl border border-dashed border-line bg-white px-6 py-12 text-center">
+      <span className="grid h-14 w-14 place-items-center rounded-full bg-gold/15 ring-8 ring-gold/5"><Inbox className="h-7 w-7 text-gold-antique" /></span>
       <h3 className="mt-3 text-lg font-bold text-emerald">{title}</h3>
       {text && <p className="mt-1 max-w-sm text-sm text-muted">{text}</p>}
       {action && <div className="mt-4">{action}</div>}
@@ -52,5 +52,5 @@ export function Pagination({ page, pages, onChange }: { page: number; pages: num
 }
 /** Standard "illustrative" disclaimer used wherever data is not real. */
 export function DemoNote({ children = "Illustrative demo data — not an actual scheme, quote or offer." }: { children?: ReactNode }) {
-  return <p className="rounded-md border border-gold/40 bg-gold/10 px-3 py-2 text-xs font-medium text-[#6b5400]">{children}</p>;
+  return <p className="rounded-lg border border-gold/40 bg-gold/10 px-3 py-2 text-xs font-medium text-[#6b5400]">{children}</p>;
 }

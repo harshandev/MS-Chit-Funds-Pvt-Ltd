@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { motion, useReducedMotion } from "motion/react";
 import { MessageCircle } from "lucide-react";
 import { Dialog } from "@/components/ui/Dialog";
 import { Button } from "@/components/ui/Button";
@@ -64,18 +65,19 @@ export function EnquiryDialog({ scheme, open, onOpenChange }: { scheme: Scheme; 
 /** Persistent sticky call-to-action bar for a scheme page. */
 export function SchemeStickyCta({ scheme }: { scheme: Scheme }) {
   const [open, setOpen] = useState(false);
+  const reduce = useReducedMotion();
   const active = scheme.status === "Active";
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 backdrop-blur" role="region" aria-label="Scheme actions">
+      <motion.div initial={reduce ? false : { y: 90 }} animate={{ y: 0 }} transition={{ type: "spring", stiffness: 220, damping: 26, delay: 0.6 }} className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/90 shadow-[0_-8px_30px_-12px_rgb(24_37_31/0.2)] backdrop-blur-md" role="region" aria-label="Scheme actions">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <p className="hidden text-sm text-muted sm:block">{active ? "Illustrative demo scheme: onboarding is a demo walkthrough." : `Status: ${scheme.status}. Onboarding is not open for this scheme.`}</p>
           <div className="flex w-full gap-3 sm:w-auto">
             {active && <Button href={`/register?scheme=${encodeURIComponent(scheme.id)}`} variant="secondary" className="flex-1 sm:flex-none">Start onboarding</Button>}
-            <Button onClick={() => setOpen(true)} className="flex-1 sm:flex-none"><MessageCircle className="h-4 w-4" />Enquire about this scheme</Button>
+            <Button onClick={() => setOpen(true)} className="flex-1 transition-transform active:scale-[0.97] sm:flex-none"><MessageCircle className="h-4 w-4" />Enquire about this scheme</Button>
           </div>
         </div>
-      </div>
+      </motion.div>
       <EnquiryDialog scheme={scheme} open={open} onOpenChange={setOpen} />
     </>
   );

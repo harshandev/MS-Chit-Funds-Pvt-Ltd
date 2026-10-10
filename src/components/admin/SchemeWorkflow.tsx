@@ -8,6 +8,7 @@ import { SelectField } from "@/components/ui/fields";
 import { useToast } from "@/components/ui/Toast";
 import { StatusBadge } from "@/components/ui/Badge";
 import { useActingAs } from "./ActingAs";
+import { RequestTracker } from "./ApprovalTracker";
 import { useAdminState, schemeTransitions, type SchemeRequest } from "./AdminState";
 import { AdminTable, ReasonField, SimulatedTag, SmallButton, StatusPill, fmtDateTime, minReason, reasonError, useLoad, AsyncView } from "./common";
 
@@ -122,7 +123,7 @@ export function RequestsTable({ requests, schemes, showScheme = true }: { reques
           ...(showScheme ? [{ key: "scheme", header: "Scheme", render: (r: SchemeRequest) => name(r.schemeId) }] : []),
           { key: "change", header: "Change", render: (r) => <span className="inline-flex items-center gap-1.5"><StatusBadge status={r.from} />→<StatusBadge status={r.to} /></span> },
           { key: "by", header: "Raised by", render: (r) => `${r.raisedBy} · ${fmtDateTime(r.raisedAt)}` },
-          { key: "state", header: "State", render: (r) => <span className="inline-flex flex-wrap items-center gap-1.5"><StatusPill status={r.state} />{r.state === "Approved (simulated)" && <SimulatedTag />}</span> },
+          { key: "state", header: "Workflow", render: (r) => <span className="flex flex-col items-end gap-2 md:items-stretch"><RequestTracker request={r} /><span className="inline-flex flex-wrap items-center gap-1.5"><StatusPill status={r.state} />{r.state === "Approved (simulated)" && <SimulatedTag />}</span></span> },
           { key: "act", header: "Action", render: (r) => r.state === "Pending approval"
             ? <SmallButton onClick={() => setDeciding(r)} disabled={role !== "Checker"} title={role !== "Checker" ? "Switch to Checker to decide" : undefined}>Review &amp; decide</SmallButton>
             : <span className="text-xs text-muted">{r.decidedBy ? `${r.decidedBy} · ${fmtDateTime(r.decidedAt)}` : "—"}</span> },

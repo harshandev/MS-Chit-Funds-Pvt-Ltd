@@ -73,3 +73,26 @@ export function computeSummary(d: Snapshot): Summary {
     reconCount: recon.length,
   };
 }
+
+/** Cumulative Successful contributions (rupees) ordered by instalment number; real data only. */
+export function contributionSeries(payments: Payment[]): number[] {
+  const byNo = new Map<number, number>();
+  for (const p of payments) if (p.status === "Successful") byNo.set(p.instalmentNo, (byNo.get(p.instalmentNo) ?? 0) + p.amount / 100);
+  let run = 0;
+  return [...byNo.entries()].sort(([a], [b]) => a - b).map(([, v]) => (run += v));
+}
+
+/** Cumulative illustrative dividends by instalment number (same rules as dividendFor). */
+export function dividendSeries(d: Snapshot): number[] {
+  const byNo = new Map<number, number>();
+  for (const m of d.memberships.filter(isLiable)) {
+    const s = schemeFor(d, m.schemeId);
+    if (!s || m.status === "Enrolment pending" || (m.status === "Prized" && !s.rules.prizedReceivesDividend)) continue;
+    for (const a of d.auctions) {
+      if (a.schemeId !== m.schemeId || a.state !== "Result published" || a.discountBps == null || a.instalmentNo > m.currentInstalment || a.winningTicket === m.ticketNo) continue;
+      byNo.set(a.instalmentNo, (byNo.get(a.instalmentNo) ?? 0) + computeBreakdown(s.rules, a.discountBps, a.instalmentNo).dividendPerTicket / 100);
+    }
+  }
+  let run = 0;
+  return [...byNo.entries()].sort(([a], [b]) => a - b).map(([, v]) => (run += v));
+}

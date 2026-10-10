@@ -4,7 +4,7 @@ import { DefList } from "./ui";
 
 export function BreakdownTable({ b, rules, discountBps }: { b: ChitBreakdown; rules: SchemeRules; discountBps: Bps }) {
   return (
-    <DefList rows={[
+    <DefList reveal rows={[
       { label: "Gross chit amount", value: formatINRPrecise(b.gross) },
       { label: `Discount (${formatBps(discountBps)} of gross)`, value: `− ${formatINRPrecise(b.discount)}` },
       { label: "Net chit amount to winning ticket (gross − discount)", value: <strong>{formatINRPrecise(b.netChit)}</strong> },

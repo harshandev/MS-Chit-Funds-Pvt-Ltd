@@ -7,7 +7,7 @@ export interface Column<T> { key: string; header: string; render: (row: T) => Re
 export function DataTable<T>({ columns, rows, rowKey, caption }: { columns: Column<T>[]; rows: T[]; rowKey: (r: T) => string; caption: string }) {
   return (
     <>
-      <div className="hidden overflow-x-auto rounded-lg border border-line bg-white md:block">
+      <div className="hidden overflow-x-auto rounded-xl border border-line/80 bg-white shadow-[var(--shadow-1)] md:block">
         <table className="w-full text-left text-sm">
           <caption className="sr-only">{caption}</caption>
           <thead className="bg-ivory text-xs uppercase tracking-wide text-muted">
@@ -15,14 +15,14 @@ export function DataTable<T>({ columns, rows, rowKey, caption }: { columns: Colu
           </thead>
           <tbody className="divide-y divide-line">
             {rows.map((r) => (
-              <tr key={rowKey(r)}>{columns.map((c) => <td key={c.key} className={cn("px-4 py-3 align-middle", c.className)}>{c.render(r)}</td>)}</tr>
+              <tr key={rowKey(r)} className="transition-colors hover:bg-emerald-50/50">{columns.map((c) => <td key={c.key} className={cn("px-4 py-3 align-middle", c.className)}>{c.render(r)}</td>)}</tr>
             ))}
           </tbody>
         </table>
       </div>
       <ul className="space-y-3 md:hidden" aria-label={caption}>
         {rows.map((r) => (
-          <li key={rowKey(r)} className="rounded-lg border border-line bg-white p-4">
+          <li key={rowKey(r)} className="rounded-xl border border-line/80 bg-white p-4 shadow-[var(--shadow-1)]">
             <dl className="space-y-2 text-sm">
               {columns.map((c) => (
                 <div key={c.key} className="flex justify-between gap-4"><dt className="text-muted">{c.header}</dt><dd className="text-right font-medium">{c.render(r)}</dd></div>

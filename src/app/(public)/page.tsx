@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/marketing/Hero";
-import { FeaturedPlans, FinalCta, HowSteps, LearnCards, Pillars, SocialProofOrBenefits, TransparencyFeature, TrustSection } from "@/components/marketing/HomeSections";
+import { FinalCta, PrinciplesTicker, SocialProofOrBenefits, TrustSection } from "@/components/marketing/HomeSections";
+import { Playground } from "@/components/marketing/home/Playground";
+import { Bento } from "@/components/marketing/home/Bento";
+import { StickySteps } from "@/components/marketing/home/StickySteps";
+import { PlansCarousel } from "@/components/marketing/home/PlansCarousel";
+import { Receipt } from "@/components/marketing/home/Receipt";
+import { EducationStack } from "@/components/marketing/home/EducationStack";
 
 export const metadata: Metadata = {
   title: { absolute: "MS Chit Funds Pvt. Ltd. — Financial journeys, built on trust" },
@@ -11,11 +17,13 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <Pillars />
-      <HowSteps />
-      <FeaturedPlans />
-      <TransparencyFeature />
-      <LearnCards />
+      <Playground />
+      <PrinciplesTicker />
+      <Bento />
+      <StickySteps />
+      <PlansCarousel />
+      <Receipt />
+      <EducationStack />
       <TrustSection />
       <SocialProofOrBenefits />
       <FinalCta />

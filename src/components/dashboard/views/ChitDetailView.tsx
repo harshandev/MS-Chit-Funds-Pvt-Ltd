@@ -2,7 +2,9 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AlertTriangle, CircleDot } from "lucide-react";
-import { Card, CardBody } from "@/components/ui/Card";
+import { Stagger, StaggerItem } from "@/components/motion/Reveal";
+import { ProgressRing } from "@/components/ui/ProgressRing";
+import { CardBody } from "@/components/ui/Card";
 import { StatusBadge } from "@/components/ui/Badge";
 import { Tabs } from "@/components/ui/Tabs";
 import { DataTable } from "@/components/ui/DataTable";
@@ -12,7 +14,7 @@ import { SelectField, TextField } from "@/components/ui/fields";
 import { computeBreakdown } from "@/lib/chit";
 import { formatINR, formatINRPrecise, formatBps, pctToBps } from "@/lib/money";
 import type { Auction, DocumentItem, Membership, Payment, Scheme } from "@/data/types";
-import { DataGate, DefList, PageHeader } from "../ui";
+import { DataGate, DefList, PageHeader, Surface } from "../ui";
 import { schemeFor, type Snapshot } from "../DashboardData";
 import { formatDate, formatDateTime } from "../format";
 import { membershipMetrics } from "../MembershipCard";
@@ -32,17 +34,17 @@ function buildTimeline(payments: Payment[], auctions: Auction[], docs: DocumentI
 
 function Timeline({ events }: { events: Event[] }) {
   return (
-    <ol className="relative space-y-5 border-l border-line pl-6">
+    <Stagger gap={0.06}><ol className="relative space-y-5 border-l-2 border-line pl-6">
       {events.map((e, i) => (
-        <li key={i} className="relative">
-          <CircleDot className="absolute -left-[33px] top-0.5 h-4 w-4 rounded-full bg-ivory text-gold-antique" aria-hidden />
+        <li key={i} className="relative"><StaggerItem>
+          <CircleDot className="absolute -left-[34px] top-0.5 h-4 w-4 rounded-full bg-ivory text-gold-antique" aria-hidden />
           <p className="text-xs font-semibold uppercase tracking-wide text-muted">{e.kind}{e.at && <> · <time dateTime={e.at}>{formatDate(e.at)}</time></>}</p>
           <p className="mt-0.5 text-sm font-semibold text-ink">{e.title}</p>
           <p className="text-sm text-muted">{e.detail}</p>
           <div className="mt-1 flex flex-wrap items-center gap-3"><StatusBadge status={e.badge} />{e.href && <Link href={e.href} className="text-xs font-semibold text-emerald hover:underline">Open</Link>}</div>
-        </li>
+        </StaggerItem></li>
       ))}
-    </ol>
+    </ol></Stagger>
   );
 }
 
@@ -114,28 +116,28 @@ function Detail({ d, id }: { d: Snapshot; id: string }) {
   return (
     <>
       <Breadcrumbs items={[{ label: "My chits", href: "/dashboard/my-chits" }, { label: s.name }]} />
-      <PageHeader title={s.name} intro={`Ticket no. ${m.ticketNo} · ${s.summary}`} actions={<StatusBadge status={m.status} />} />
+      <PageHeader title={s.name} intro={`Ticket no. ${m.ticketNo} · ${s.summary}`} actions={<div className="flex items-center gap-3"><ProgressRing value={k.progress} size={52} stroke={5} label={`${k.progress}% of instalments completed`}><span className="text-[11px] font-bold tabular-nums text-emerald">{k.progress}%</span></ProgressRing><StatusBadge status={m.status} /></div>} />
       {enrolBanner}
       <Tabs tabs={[
         { value: "overview", label: "Overview", content: (
           <div className="grid gap-4 md:grid-cols-2">
-            <Card><CardBody><h2 className="mb-2 font-bold text-emerald">Membership</h2><DefList rows={[
+            <Surface><CardBody><h2 className="mb-2 font-bold text-emerald">Membership</h2><DefList rows={[
               { label: "Status", value: <StatusBadge status={m.status} /> },
               { label: "Ticket number", value: m.ticketNo },
               { label: "Current instalment", value: `${m.currentInstalment} of ${s.rules.instalments}` },
               { label: "Prize status", value: pending ? "Not applicable until enrolment is complete" : m.prizeStatus },
               { label: "Scheme status", value: <StatusBadge status={s.status} /> },
               { label: "Illustrative dividends so far", value: pending ? "—" : formatINRPrecise(dividend) },
-            ]} /></CardBody></Card>
-            <Card><CardBody><h2 className="mb-2 font-bold text-emerald">Scheme terms (illustrative)</h2><DefList rows={[
+            ]} /></CardBody></Surface>
+            <Surface><CardBody><h2 className="mb-2 font-bold text-emerald">Scheme terms (illustrative)</h2><DefList rows={[
               { label: "Gross chit", value: formatINR(s.rules.grossChit) },
               { label: "Tickets / instalments", value: `${s.rules.tickets} / ${s.rules.instalments}` },
               { label: "Monthly instalment", value: formatINR(s.rules.instalment) },
               { label: "Maximum auction discount", value: formatBps(s.rules.maxDiscountBps) },
               { label: pending ? "Expected first due date" : "Next payment due", value: `${formatDate(m.nextDue)}${pending ? " (not yet payable)" : ""}` },
               { label: "Future obligation", value: pending ? "Applies after activation" : `${formatINR(k.future)} (${k.remaining} instalments)` },
-            ]} /><p className="mt-3 text-xs text-muted">{s.commencementNote}</p></CardBody></Card>
-            <Card className="md:col-span-2"><CardBody>
+            ]} /><p className="mt-3 text-xs text-muted">{s.commencementNote}</p></CardBody></Surface>
+            <Surface className="md:col-span-2"><CardBody>
               <h2 className="mb-4 font-bold text-emerald">Activity timeline</h2>
               {tl.dated.length + tl.undated.length === 0 ? <p className="text-sm text-muted">No activity yet.</p> : (
                 <>
@@ -143,7 +145,7 @@ function Detail({ d, id }: { d: Snapshot; id: string }) {
                   {tl.undated.length > 0 && (<><h3 className="mb-3 mt-6 text-sm font-bold text-ink">Documents (no date recorded in demo data)</h3><Timeline events={tl.undated} /></>)}
                 </>
               )}
-            </CardBody></Card>
+            </CardBody></Surface>
           </div>
         ) },
         { value: "payments", label: "Payments", content: payments.length === 0

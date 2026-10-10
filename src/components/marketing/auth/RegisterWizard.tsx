@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, Plug } from "lucide-react";
@@ -10,7 +11,6 @@ import { cn } from "@/lib/cn";
 import { StatusBadge } from "@/components/ui/Badge";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { TextField, SelectField } from "@/components/ui/fields";
-import { Card, CardBody } from "@/components/ui/Card";
 import { DemoNote } from "@/components/ui/misc";
 import { emailSchema, mobileSchema } from "../validation";
 
@@ -49,10 +49,14 @@ const checklist = [
   "Any additional documents the scheme agreement requires (e.g., security documents)",
 ];
 
+function PopBadge({ status, delay = 0 }: { status: string; delay?: number }) {
+  return <motion.span className="inline-flex" initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", stiffness: 420, damping: 20, delay }}><StatusBadge status={status} /></motion.span>;
+}
+
 function VerifyCard({ title, status, text }: { title: string; status: VerificationStatus; text: string }) {
   return (
-    <div className="rounded-lg border border-line bg-ivory p-5">
-      <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-bold text-emerald">{title}</h3><StatusBadge status={status} /></div>
+    <div className="rounded-2xl border border-line bg-ivory p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-bold text-emerald">{title}</h3><PopBadge status={status} delay={0.15} /></div>
       <p className="mt-2 text-sm text-muted">{text}</p>
       <p className="mt-3 flex items-start gap-2 rounded-md border border-dashed border-gold-antique/60 bg-gold/10 p-3 text-sm text-ink"><Plug className="mt-0.5 h-4 w-4 shrink-0" aria-hidden /><span><strong>Integration required.</strong> A verified service must be connected before this step can run. This demo does not collect or check any identity or bank documents.</span></p>
     </div>
@@ -71,9 +75,10 @@ export function RegisterWizard() {
   const [docs, setDocs] = useState<Record<string, boolean>>({});
   const [schemeId, setSchemeId] = useState<string | null>(requestedScheme?.status === "Active" ? requestedScheme.id : null);
   const [errors, setErrors] = useState<Errors>({});
-  const heading = useRef<HTMLHeadingElement>(null);
-
-  useEffect(() => { heading.current?.focus(); }, [i]);
+  const [dir, setDir] = useState(1);
+  const reduce = useReducedMotion();
+  // Focus each step heading as it mounts (stable ref callback, so typing never loses focus).
+  const headingRef = useCallback((el: HTMLHeadingElement | null) => { el?.focus({ preventScroll: true }); }, []);
 
   function validate(step: number): Errors {
     const e: Errors = {};
@@ -88,31 +93,51 @@ export function RegisterWizard() {
     if (step === 5 && !schemeId) e.scheme = "Select an active scheme to continue.";
     return e;
   }
-  const next = () => { const e = validate(i); setErrors(e); if (Object.keys(e).length === 0) setI((n) => Math.min(n + 1, steps.length - 1)); };
-  const back = () => { setErrors({}); setI((n) => Math.max(0, n - 1)); };
+  const next = () => { const e = validate(i); setErrors(e); if (Object.keys(e).length === 0) { setDir(1); setI((n) => Math.min(n + 1, steps.length - 1)); } };
+  const back = () => { setErrors({}); setDir(-1); setI((n) => Math.max(0, n - 1)); };
   const chosen = schemes.find((s) => s.id === schemeId);
   const setP = (k: keyof Profile) => (e: React.ChangeEvent<HTMLInputElement>) => setProfile((p) => ({ ...p, [k]: k === "mobile" ? e.target.value.replace(/\D/g, "") : e.target.value }));
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <h1 className="text-3xl font-extrabold text-emerald">Start onboarding</h1>
+    <div className="mx-auto w-full max-w-2xl">
+      <h1 className="text-4xl font-extrabold text-emerald">Start <span className="font-serif font-normal italic text-gold-antique">onboarding</span></h1>
       <p className="mt-2 text-sm text-muted">A demo walkthrough of the steps involved. Nothing is submitted, stored or signed.</p>
 
       <nav aria-label="Progress" className="mt-6">
-        <p className="text-sm font-semibold text-ink">Step {i + 1} of {steps.length}</p>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={i + 1} aria-label="Onboarding progress"><div className="h-full bg-emerald transition-all" style={{ width: `${((i + 1) / steps.length) * 100}%` }} /></div>
-        <ol className="mt-3 hidden flex-wrap gap-2 text-xs md:flex">
+        <div className="flex items-baseline justify-between gap-3">
+          <p className="text-sm font-semibold text-ink">Step {i + 1} of {steps.length}</p>
+          <p className="truncate text-sm font-semibold text-gold-antique">{steps[i].title}</p>
+        </div>
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={i + 1} aria-label="Onboarding progress"><motion.div className="h-full origin-left rounded-full bg-gradient-to-r from-emerald to-gold" initial={false} animate={{ scaleX: (i + 1) / steps.length }} transition={{ type: "spring", stiffness: 120, damping: 22 }} /></div>
+        <ol className="mt-4 flex items-center justify-between">
           {steps.map((s, n) => (
-            <li key={s.title} aria-current={n === i ? "step" : undefined} className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-1", n === i ? "bg-emerald text-ivory" : n < i ? "bg-emerald-50 text-emerald" : "bg-line/60 text-muted")}>
-              {n < i && <Check className="h-3 w-3" aria-hidden />}{s.title}
+            <li key={s.title} aria-current={n === i ? "step" : undefined} className="relative flex flex-1 items-center last:flex-none">
+              <motion.span
+                title={s.title}
+                animate={{ scale: n === i ? 1.15 : 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                className={cn("grid h-7 w-7 shrink-0 place-items-center rounded-full text-[11px] font-bold transition-colors duration-300", n === i ? "bg-gold text-navy shadow-[0_0_0_4px] shadow-gold/25" : n < i ? "bg-emerald text-ivory" : "bg-line text-muted")}
+              >
+                <span className="sr-only">{n < i ? "Completed: " : n === i ? "Current: " : "Upcoming: "}{s.title}</span>
+                {n < i ? <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500, damping: 18 }}><Check className="h-3.5 w-3.5" strokeWidth={3.5} aria-hidden /></motion.span> : <span aria-hidden>{n + 1}</span>}
+              </motion.span>
+              {n < steps.length - 1 && <span aria-hidden className="mx-1 h-0.5 flex-1 overflow-hidden rounded-full bg-line"><motion.span className="block h-full origin-left bg-emerald" initial={false} animate={{ scaleX: n < i ? 1 : 0 }} transition={{ duration: 0.4 }} /></span>}
             </li>
           ))}
         </ol>
       </nav>
 
-      <Card className="mt-6"><CardBody>
-        <h2 ref={heading} tabIndex={-1} className="text-xl font-bold text-emerald outline-none">{steps[i].title}</h2>
-        <p className="mt-2 rounded-md bg-emerald-50 p-3 text-sm text-ink"><span className="font-semibold">Why this step: </span>{steps[i].why}</p>
+      <div className="mt-6 overflow-hidden rounded-3xl border border-line/80 bg-white p-5 shadow-[var(--shadow-3)] sm:p-8">
+       <AnimatePresence mode="wait" initial={false} custom={dir}>
+        <motion.div
+          key={i}
+          custom={dir}
+          variants={{ enter: (d: number) => ({ opacity: 0, x: reduce ? 0 : d * 40 }), center: { opacity: 1, x: 0 }, exit: (d: number) => ({ opacity: 0, x: reduce ? 0 : d * -40 }) }}
+          initial="enter" animate="center" exit="exit"
+          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        >
+        <h2 ref={headingRef} tabIndex={-1} className="text-xl font-bold text-emerald outline-none">{steps[i].title}</h2>
+        <p className="mt-2 rounded-xl bg-emerald-50 p-3 text-sm text-ink"><span className="font-semibold">Why this step: </span>{steps[i].why}</p>
         <div className="mt-5 space-y-4">
           {i === 0 && (
             <>
@@ -128,7 +153,7 @@ export function RegisterWizard() {
               <VerifyCard title="KYC status" status="Not started" text="Identity verification will be completed through a verified service. You will be guided through it, and you will see your status here." />
               <div>
                 <h3 className="text-sm font-bold text-ink">What each status means</h3>
-                <ul className="mt-2 space-y-2">{statusInfo.map(([s, d]) => <li key={s} className="flex flex-wrap items-center gap-2 text-sm"><StatusBadge status={s} /><span className="text-muted">{d}</span></li>)}</ul>
+                <ul className="mt-2 space-y-2">{statusInfo.map(([s, d], k) => <motion.li key={s} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + k * 0.05 }} className="flex flex-wrap items-center gap-2 text-sm"><PopBadge status={s} delay={0.1 + k * 0.05} /><span className="text-muted">{d}</span></motion.li>)}</ul>
               </div>
             </>
           )}
@@ -198,7 +223,7 @@ export function RegisterWizard() {
           )}
           {i === 8 && (
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-3"><StatusBadge status="Under review" /><span className="text-sm font-semibold text-ink">Under review (demo)</span></div>
+              <div className="flex flex-wrap items-center gap-3"><PopBadge status="Under review" /><span className="text-sm font-semibold text-ink">Under review (demo)</span></div>
               <dl className="grid gap-3 text-sm sm:grid-cols-2">
                 <div><dt className="text-xs uppercase tracking-wider text-muted">Name</dt><dd className="font-semibold">{profile.name}</dd></div>
                 <div><dt className="text-xs uppercase tracking-wider text-muted">Mobile</dt><dd className="font-semibold">{"XXXXXX" + profile.mobile.slice(-4)}</dd></div>
@@ -212,11 +237,13 @@ export function RegisterWizard() {
             </div>
           )}
         </div>
+        </motion.div>
+       </AnimatePresence>
         <div className="mt-8 flex items-center justify-between gap-3 border-t border-line pt-5">
           <Button variant="ghost" onClick={back} disabled={i === 0}><ArrowLeft className="h-4 w-4" />Back</Button>
-          {i < steps.length - 1 && <Button onClick={next}>{i === 7 ? "Continue" : "Next"}<ArrowRight className="h-4 w-4" /></Button>}
+          {i < steps.length - 1 && <Button onClick={next} className="transition-transform active:scale-[0.97]">{i === 7 ? "Continue" : "Next"}<ArrowRight className="h-4 w-4" /></Button>}
         </div>
-      </CardBody></Card>
+      </div>
     </div>
   );
 }

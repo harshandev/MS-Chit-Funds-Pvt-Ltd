@@ -2,7 +2,7 @@ import { cn } from "@/lib/cn";
 import type { HTMLAttributes } from "react";
 
 export function Card({ className, ...p }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("rounded-lg border border-line bg-white shadow-[var(--shadow-1)]", className)} {...p} />;
+  return <div className={cn("rounded-xl border border-line/80 bg-white shadow-[0_1px_2px_rgb(24_37_31/0.04),0_10px_28px_-14px_rgb(24_37_31/0.14)]", className)} {...p} />;
 }
 export function CardBody({ className, ...p }: HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("p-5 sm:p-6", className)} {...p} />;

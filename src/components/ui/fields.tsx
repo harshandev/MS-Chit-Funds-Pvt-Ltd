@@ -1,8 +1,9 @@
 "use client";
 import { cn } from "@/lib/cn";
+import { AnimatePresence, motion } from "motion/react";
 import { forwardRef, useId, type InputHTMLAttributes, type SelectHTMLAttributes, type TextareaHTMLAttributes, type ReactNode } from "react";
 
-const control = "w-full min-h-11 rounded-md border border-line bg-white px-3 text-sm text-ink placeholder:text-muted/70 focus:border-emerald disabled:bg-ivory";
+const control = "w-full min-h-11 rounded-lg border border-line bg-white px-3.5 text-sm text-ink shadow-[var(--shadow-1)] transition-[border-color,box-shadow] duration-200 placeholder:text-muted/70 hover:border-ink/25 focus:border-emerald focus:outline-none focus:ring-4 focus:ring-emerald/10 disabled:bg-ivory";
 
 function Wrap({ id, label, hint, error, children }: { id: string; label: string; hint?: string; error?: string; children: ReactNode }) {
   return (
@@ -10,7 +11,9 @@ function Wrap({ id, label, hint, error, children }: { id: string; label: string;
       <label htmlFor={id} className="mb-1.5 block text-sm font-semibold text-ink">{label}</label>
       {children}
       {hint && !error && <p className="mt-1 text-xs text-muted">{hint}</p>}
-      {error && <p role="alert" className="mt-1 text-xs font-medium text-danger">{error}</p>}
+      <AnimatePresence initial={false}>
+        {error && <motion.p key={error} role="alert" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="mt-1 text-xs font-medium text-danger">{error}</motion.p>}
+      </AnimatePresence>
     </div>
   );
 }
@@ -21,7 +24,7 @@ export const TextField = forwardRef<HTMLInputElement, Common & InputHTMLAttribut
   const id = useId();
   return (
     <Wrap id={id} label={label} hint={hint} error={error}>
-      <input ref={ref} id={id} aria-invalid={!!error} className={cn(control, error && "border-danger", className)} {...p} />
+      <input ref={ref} id={id} aria-invalid={!!error} className={cn(control, error && "border-danger focus:border-danger focus:ring-danger/10", className)} {...p} />
     </Wrap>
   );
 });
