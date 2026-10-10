@@ -5,6 +5,8 @@ import { Spotlight } from "@/components/motion/Spotlight";
 import { Stagger, StaggerItem, Reveal } from "@/components/motion/Reveal";
 import { Eyebrow } from "@/components/ui/Card";
 import { cn } from "@/lib/cn";
+import { formatINR } from "@/lib/money";
+import { showcaseScheme } from "../constants";
 
 function Tile({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
@@ -22,7 +24,8 @@ function IconBadge({ children }: { children: React.ReactNode }) {
 
 function MiniSchemeRows() {
   const reduce = useReducedMotion();
-  const rows = [["Value", "₹1,00,000"], ["Instalment", "₹5,000 / mo"], ["Duration", "20 months"], ["Status", "Illustrative"]];
+  const { grossChit, instalment, instalments } = showcaseScheme.rules;
+  const rows = [["Value", formatINR(grossChit)], ["Instalment", `${formatINR(instalment)} / mo`], ["Duration", `${instalments} months`], ["Status", "Illustrative"]];
   return (
     <div className="mt-6 space-y-2" aria-hidden>
       {rows.map(([k, v], i) => (
